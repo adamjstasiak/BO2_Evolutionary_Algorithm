@@ -1,6 +1,6 @@
 import numpy as np
 import itertools as it 
-from random import sample,shuffle
+from random import sample,shuffle,choices
 
 def create_random_data_matrix(number_parcels:int, number_of_factory:int):
     """
@@ -38,11 +38,12 @@ def operative_function(sollution:list, distance_matrix:np.array, flow_matrix:np.
     else:
         sum = 0
         for idx_i, el_i in enumerate(sollution):
-            for idx_j, el_j in enumerate(sollution):
-                if idx_i == idx_j or flow_matrix[el_i, el_j] == np.inf or (el_i or el_j == np.inf):
-                    pass
-                else:
-                    sum += distance_matrix[idx_i, idx_j] + flow_matrix[el_i, el_j]
+            for idx_j, el_j in enumerate(sollution): # todo poprawić
+                if el_i or el_j == np.inf:
+                    if idx_i == idx_j or flow_matrix[el_i, el_j] == np.inf:
+                        pass
+                    else:
+                        sum += distance_matrix[idx_i, idx_j] + flow_matrix[el_i, el_j]
 
     return sum/2 #kazdy dystans i przeplyw jest uwzgledniony dwa razy wiec dziele na 2
     
@@ -61,37 +62,82 @@ def create_fabric_list(parcels_number:list,factory_number:list):
     return factory_list
 
 
-def generate_population(fabric_list:list, size_of_populations:int):
+def generate_population(fabric_list:list, size_of_populations:int): 
     """
     Function generating population of different sollutions
     fabric_list - basic list withh assinged first factory to first parcel etc.
     size_of_population - number of total sollutions
     Return:
-        Total statring population
+        List with starting population
     """
     population = []
     for i in range(size_of_populations):
-        shuffle(fabric_list)
-        population.append(fabric_list)
+        solution = sample(fabric_list,len(fabric_list))
+        population.append(solution)
     return population
+
+def selection(population,distance,flow,selection_size):
+    """
+    Roulette wheel selection function return list with selected individuals 
+    based on weighted random choice. 
+    Population - list with our individuals to select
+    Distances - matrix with distance between parcels
+    Flow - matrix with flows between each factory
+    Selection size - number od individuals we want to select.
+    Return:
+        List with selected individuals
+    """
+    fitness_table = []
+    sum_p = 0
+    for i in range(len(population)):
+        sum_p += operative_function(population[i],distance,flow) 
+    for i in range(len(population)):
+        fitness_table.append(operative_function(population[i],distance,flow)/sum_p)
+    for i in range(len(fitness_table)-1):
+         fitness_table[i+1] += fitness_table[i] 
+    for i in range(len(fitness_table)):
+        fitness_table[i] = 1 - fitness_table[i] 
+    selected_population = choices(population,cum_weights=fitness_table,k=selection_size)
+    return selected_population
+
 
 
 def mutation(solution):
-    
-    return None
+    """
+    Mutation fuction , swaping to random gens in individual
+
+    """
+    gen1 = np.random.randint(0,len(solution))
+    gen2 = np.random.randint(0,len(solution))
+    solution[gen1],solution[gen2] = solution[gen2],solution[gen2]
+    return solution
+
+
+def crossover(parent_1,parent_2):
+    """
+    Function making one point crossover between to parents creating two childrens.
+    Crossover point is choose randomly.
+    """
+
+    k = np.random.randint(0,len(parent_1))
+    child_1 = parent_1[:k] + parent_2[k:]
+    child_2 = parent_2[:k] + parent_1[k:]
+    return child_1,child_2
 
     
 
 def main():
-    parcels_number = 8
-    factory_number = 7
+    parcels_number = 10
+    factory_number = 10
     dist , flow  = create_random_data_matrix(parcels_number,factory_number)
     fac_list = create_fabric_list(parcels_number,factory_number)
-    print(fac_list)
-    print(dist)
-    print(flow)
+    population = generate_population(fac_list,100)
+    # print(fac_list)
+    # print(dist)
+    # print(flow)
+    print(population)
     print(operative_function(fac_list, dist, flow)) 
-    print(generate_population(fac_list,20))
-
+    print(selection(population,dist,flow,20))
+   
 if __name__ == "__main__":
     main()
