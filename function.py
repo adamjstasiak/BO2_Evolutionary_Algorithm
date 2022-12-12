@@ -24,31 +24,31 @@ def create_random_data_matrix(number_parcels:int, number_of_factory:int):
     return distances, flows
 
 
-def operative_function(sollution:list, distance_matrix:np.array, flow_matrix:np.array):
+def operative_function(solution: list, distance_matrix: np.array, flow_matrix: np.array):
     """
     Function calculating value of operative function for current solution.
-    sollution (List):
-                    index - nuber of parcel; 
+    solution (List):
+                    index - number of parcel;
                     element - number of factory.
     Return:
         Total value of operative function
     """
-    if len(sollution) > len(distance_matrix[0]):
-        raise ValueError("Length of sollution is bigger than number of parcels")
+    if len(solution) > len(distance_matrix[0]):
+        raise ValueError("Length of solution is bigger than number of parcels")
     else:
         sum = 0
-        for idx_i, el_i in enumerate(sollution):
-            for idx_j, el_j in enumerate(sollution): # todo poprawić
-                if el_i or el_j == np.inf:
+        for idx_i, el_i in enumerate(solution):
+            for idx_j, el_j in enumerate(solution):
+                if el_i != np.inf and el_j != np.inf:
                     if idx_i == idx_j or flow_matrix[el_i, el_j] == np.inf:
                         pass
                     else:
-                        sum += distance_matrix[idx_i, idx_j] + flow_matrix[el_i, el_j]
+                        sum += distance_matrix[idx_i,
+                                               idx_j] + flow_matrix[el_i, el_j]
 
-    return sum/2 #kazdy dystans i przeplyw jest uwzgledniony dwa razy wiec dziele na 2
+    return sum/2  # every distance and flow is added two times, so return divided by 2
     
-    
-def create_fabric_list(parcels_number:list,factory_number:list):
+def create_fabric_list(parcels_number,factory_number):
     """
     Function creating list with number of each factories
     parcels_number = Amount of our availaible parcels
@@ -75,6 +75,7 @@ def generate_population(fabric_list:list, size_of_populations:int):
         solution = sample(fabric_list,len(fabric_list))
         population.append(solution)
     return population
+
 
 def selection(population,distance,flow,selection_size):
     """
@@ -107,24 +108,70 @@ def mutation(solution):
     Mutation fuction , swaping to random gens in individual
 
     """
-    gen1 = np.random.randint(0,len(solution))
-    gen2 = np.random.randint(0,len(solution))
+    gen1 = np.random.randint(0,len(solution) - 1)
+    gen2 = np.random.randint(0,len(solution) - 1)
     solution[gen1],solution[gen2] = solution[gen2],solution[gen2]
     return solution
 
 
-def crossover(parent_1,parent_2):
+def pmx(parent_1:list, parent_2:list): #TODO zrobić pmx
     """
-    Function making one point crossover between to parents creating two childrens.
+    Function making Partially Matched Crossover between to parents creating two childrens.
     Crossover point is choose randomly.
     """
+    size = len(parent_1)
+    k1 = np.random.randint(0, size - 1)
+    k2 = np.random.randint(0, size - 1)
+    if k2 < k1:
+        temp = k1
+        k1 = k2
+        k2 = temp
+    child_1 = parent_1.copy()
+    child_2 = parent_2.copy()
+    transposition = []
+    for i in range(k1, k2 + 1):
+        value_1 = parent_1[i]
+        value_2 = parent_2[i]
+        child_1[i] = value_2
+        child_2[i] = value_1
+        t = [value_1, value_2]
+        trans = t.copy()
+        for v in range(len(t)):
+            for j in range(len(transposition)):
+                if t[v] in transposition[j]:
+                    if transposition.index(t[v]) == 0:
+                        trans[v] = transposition[1]
+                    else:
+                        trans[v] = transposition[0]
+                    transposition.pop(j)
+        transposition.append(trans)
+    for i in [[i for i in range(0, k1)] + [i for i in range(k2+1, size)]]:
+        
+    return child_1, child_2
 
-    k = np.random.randint(0,len(parent_1))
-    child_1 = parent_1[:k] + parent_2[k:]
-    child_2 = parent_2[:k] + parent_1[k:]
-    return child_1,child_2
 
-    
+def cx(parent_1:list,parent_2:list):
+    """
+        Function making cycle crossover between to parents creating two childrens.
+        """
+    k = np.random.randint(0, len(parent_1) - 1)
+    start = k
+    I = [k]
+    while True:
+        p1 = parent_1[k]
+        p2 = parent_2[k]
+        k = parent_1.index(p2)
+        if k == start:
+            break
+        I.append(k)
+    child_1 = parent_1.copy()
+    child_2 = parent_2.copy()
+    for i in range(len(parent_1)):
+        if i not in I:
+            child_1[i] = parent_2[i]
+            child_2[i] = parent_1[i]
+    return child_1, child_2
+
 
 def main():
     parcels_number = 10
@@ -136,8 +183,10 @@ def main():
     # print(dist)
     # print(flow)
     print(population)
-    print(operative_function(fac_list, dist, flow)) 
-    print(selection(population,dist,flow,20))
+    print(operative_function(fac_list, dist, flow))
+    p = generate_population(fac_list,2)
+    #c = pmx(p[0], p[1])
+#    print(selection(population,dist,flow,20))
    
 if __name__ == "__main__":
     main()
