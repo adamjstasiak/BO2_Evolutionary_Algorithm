@@ -128,6 +128,7 @@ def pmx(parent_1:list, parent_2:list): #TODO zrobić pmx
         k2 = temp
     child_1 = parent_1.copy()
     child_2 = parent_2.copy()
+    children = [child_1, child_2]
     transposition = []
     for i in range(k1, k2 + 1):
         value_1 = parent_1[i]
@@ -136,17 +137,27 @@ def pmx(parent_1:list, parent_2:list): #TODO zrobić pmx
         child_2[i] = value_1
         t = [value_1, value_2]
         trans = t.copy()
+        to_remove = []
         for v in range(len(t)):
             for j in range(len(transposition)):
                 if t[v] in transposition[j]:
-                    if transposition.index(t[v]) == 0:
-                        trans[v] = transposition[1]
+                    if transposition[j].index(t[v]) == 0:
+                        trans[v] = transposition[j][1]
                     else:
-                        trans[v] = transposition[0]
-                    transposition.pop(j)
+                        trans[v] = transposition[j][0]
+                    to_remove.append(transposition[j])
         transposition.append(trans)
-    for i in [[i for i in range(0, k1)] + [i for i in range(k2+1, size)]]:
-        
+        for el in to_remove:
+            transposition.remove(el)
+    for child in children:
+        for i in [i for i in range(0, k1)] + [i for i in range(k2+1, size)]:
+            for j in range(len(transposition)):
+                if child[i] in transposition[j]:
+                    t = transposition[j]
+                    if t.index(child[i]) == 0:
+                        child[i] = t[1]
+                    else:
+                        child[i] = t[0]
     return child_1, child_2
 
 
@@ -185,7 +196,9 @@ def main():
     print(population)
     print(operative_function(fac_list, dist, flow))
     p = generate_population(fac_list,2)
-    #c = pmx(p[0], p[1])
+    print(p)
+    c = pmx(p[0], p[1])
+    print(c)
 #    print(selection(population,dist,flow,20))
    
 if __name__ == "__main__":
