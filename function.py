@@ -1,6 +1,5 @@
 import numpy as np
-import itertools as it 
-from random import sample,shuffle,choices
+from random import sample,choices
 
 def create_random_data_matrix(number_parcels:int, number_of_factory:int):
     """
@@ -77,6 +76,7 @@ def generate_population(fabric_list:list, size_of_populations:int):
     return population
 
 
+
 def selection(population,distance,flow,selection_size):
     """
     Roulette wheel selection function return list with selected individuals 
@@ -96,8 +96,8 @@ def selection(population,distance,flow,selection_size):
         fitness_table.append(operative_function(population[i],distance,flow)/sum_p)
     for i in range(len(fitness_table)-1):
          fitness_table[i+1] += fitness_table[i] 
-    for i in range(len(fitness_table)):
-        fitness_table[i] = 1 - fitness_table[i] 
+    # for i in range(len(fitness_table)):
+    #     fitness_table[i] = 1 - fitness_table[i] 
     selected_population = choices(population,cum_weights=fitness_table,k=selection_size)
     return selected_population
 
@@ -108,9 +108,13 @@ def mutation(solution):
     Mutation fuction , swaping to random gens in individual
 
     """
+    # TODO
     gen1 = np.random.randint(0,len(solution) - 1)
     gen2 = np.random.randint(0,len(solution) - 1)
-    solution[gen1],solution[gen2] = solution[gen2],solution[gen2]
+    if gen1 != gen2:
+        solution[gen1],solution[gen2] = solution[gen2],solution[gen1]
+    else:
+        pass
     return solution
 
 
@@ -168,7 +172,7 @@ def cx(parent_1:list,parent_2:list):
     k = np.random.randint(0, len(parent_1) - 1)
     start = k
     I = [k]
-    while True:
+    while True: # Sprawdź czy tu jest dobrze bo przy  testach wpada w pętle nieskończnoną
         p1 = parent_1[k]
         p2 = parent_2[k]
         k = parent_1.index(p2)
@@ -184,22 +188,4 @@ def cx(parent_1:list,parent_2:list):
     return child_1, child_2
 
 
-def main():
-    parcels_number = 10
-    factory_number = 10
-    dist , flow  = create_random_data_matrix(parcels_number,factory_number)
-    fac_list = create_fabric_list(parcels_number,factory_number)
-    population = generate_population(fac_list,100)
-    # print(fac_list)
-    # print(dist)
-    # print(flow)
-    print(population)
-    print(operative_function(fac_list, dist, flow))
-    p = generate_population(fac_list,2)
-    print(p)
-    c = pmx(p[0], p[1])
-    print(c)
-#    print(selection(population,dist,flow,20))
-   
-if __name__ == "__main__":
-    main()
+
