@@ -67,6 +67,13 @@ def create_fabric_list(parcels_number, factory_number):  # DONE
     return factory_list
 
 
+def create_random_solutions(fabric_list):
+    """
+    Function creating random begining solutions for problem
+    """
+    return sample(fabric_list,len(fabric_list))
+
+
 # DONE if individuals may be same
 def generate_population(fabric_list: list, size_of_populations: int):
     """
@@ -94,26 +101,6 @@ def selection(population, distance, flow, selection_size):  # DONE
     Return:
         List with selected individuals
     """
-    # OLD VERSION
-    # fitness_table = []
-    # sum_p = 0
-    # for i in range(len(population)):
-    #     sum_p += operative_function(population[i], distance, flow)
-    #     # print(operative_function(population[i], distance, flow))
-    # for i in range(len(population)):
-    #     fitness_table.append(operative_function(
-    #         population[i], distance, flow)/sum_p)
-    # # print(fitness_table)
-    # for i in range(len(fitness_table)-1):
-    #     fitness_table[i+1] += fitness_table[i]
-    # print(fitness_table)
-    # for i in range(len(fitness_table)):
-    #     fitness_table[i] = 1 - fitness_table[i]
-    # print(fitness_table)
-    # # selected_population = np.random.choice(a=population, )
-    # selected_population = choices(
-    #     population, weights=fitness_table, k=selection_size)
-    # return selected_population
     selected_population = []
     fitness_table = []
     sum_p = 0
@@ -122,15 +109,11 @@ def selection(population, distance, flow, selection_size):  # DONE
     for i in range(len(population)):
         fitness_table.append(operative_function(
             population[i], distance, flow)/sum_p)
-
     for i in range(len(fitness_table)):
         fitness_table[i] = 1 - fitness_table[i]
     for i in range(len(fitness_table)-1):
-
         fitness_table[i+1] += fitness_table[i]
-
     copy_population = copy(population)
-
     for i in range(selection_size):
         selected_individual = choices(
             copy_population, cum_weights=fitness_table)
@@ -144,7 +127,6 @@ def selection(population, distance, flow, selection_size):  # DONE
 def mutation(solution):
     """
     Mutation fuction , swaping to random gens in individual
-
     """
     # TODO
     gen1 = np.random.randint(0, len(solution) - 1)
