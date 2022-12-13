@@ -143,6 +143,8 @@ def pmx(parent_1: list, parent_2: list):  # TODO zrobić pmx
     Function making Partially Matched Crossover between to parents creating two childrens.
     Crossover point is choose randomly.
     """
+    not_erased = erase_inf(parent_1)
+    erase_inf(parent_2)
     size = len(parent_1)
     k1 = np.random.randint(0, size - 1)
     k2 = np.random.randint(0, size - 1)
@@ -182,6 +184,10 @@ def pmx(parent_1: list, parent_2: list):  # TODO zrobić pmx
                         child[i] = t[1]
                     else:
                         child[i] = t[0]
+    return_inf(parent_1, not_erased)
+    return_inf(parent_2, not_erased)
+    return_inf(child_1, not_erased)
+    return_inf(child_2, not_erased)
     return child_1, child_2
 
 
