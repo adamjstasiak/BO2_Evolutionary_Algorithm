@@ -165,6 +165,12 @@ def pmx(parent_1:list, parent_2:list): #TODO zrobić pmx
     return child_1, child_2
 
 
+def erase_inf(organism:list):
+    not_inf_counter = 0
+    for el in organism:
+        if el != np.inf:
+
+
 def cx(parent_1:list,parent_2:list):
     """
         Function making cycle crossover between to parents creating two childrens.
@@ -189,3 +195,10 @@ def cx(parent_1:list,parent_2:list):
 
 
 
+parcels_number = 15
+factory_number = 12
+dist , flow  = create_random_data_matrix(parcels_number,factory_number)
+fac_list = create_fabric_list(parcels_number,factory_number)
+pop = generate_population(fac_list, 10)
+cc = cx(pop[0], pop[1])
+print(cc)
