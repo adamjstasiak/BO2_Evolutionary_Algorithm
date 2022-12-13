@@ -1,6 +1,23 @@
 import numpy as np
 from random import sample,choices
 
+class Organism:
+    def __init__(self,parcels_number,factory_number):
+        self.parcels_number = parcels_number
+        self.factory_number = factory_number
+        factory_list = [np.inf for i in range(parcels_number)]
+        for i in range(self.factory_number):
+            factory_list[i] = i
+        self.factory_list = factory_list
+
+    def sample_solution(self):
+        self.factory_list = sample(self.factory_list, self.parcels_number)
+
+    def
+
+
+class Population:
+
 def create_random_data_matrix(number_parcels:int, number_of_factory:int):
     """
     Function creating matrix with distances between parcels and flows beetween factories.
