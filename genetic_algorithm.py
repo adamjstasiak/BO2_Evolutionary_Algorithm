@@ -61,7 +61,7 @@ def genetic_algorith(distance, flow, factory_list, population_size, selection_si
                     children = fun.inversion_mutation(selected_population[mutate_idx])
                     selected_population[mutate_idx] = children
                 elif mut_type == fun.Mutations.scramble:
-                    children = fun.inversion_mutation(selected_population[mutate_idx])
+                    children = fun.scramble_mutation(selected_population[mutate_idx])
                     selected_population[mutate_idx] = children
             else:
                 pass
@@ -103,7 +103,7 @@ def main():
     fac_list = fun.create_fabric_list(parcels_number, factory_number)
     # fac_list = [2, 3, 4, 5, 0, 1]
     solution, value = genetic_algorith(
-        dist_matrix, flow_matrix, fac_list,20, 15, 100, crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1,
+        dist_matrix, flow_matrix, fac_list,50, 30, 100, crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1,
                          swap_probability=1, inversion_probability=1, scramble_probability=1)
     # print(fac_list, fun.operative_function(
     #     fac_list, dist_matrix, flow_matrix), '   - wartosc poczatkowa')
