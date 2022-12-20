@@ -77,7 +77,7 @@ def main():
     dist_matrix = np.array(dist)
     flow_matrix = np.array(flow)
     parcels_number = 20
-    factory_number = 20
+    factory_number = 17
     # fac_list = fun.create_fabric_list(parcels_number, factory_number)
     fac_list = [2, 3, 4, 5, 0, 1]
     solution, value = genetic_algorith(
@@ -88,7 +88,7 @@ def main():
 
     dist, flow = fun.create_random_data_matrix(parcels_number, factory_number)
     fac_list = fun.create_fabric_list(parcels_number, factory_number)
-    # print(fac_list)
+    #print(fac_list)
     # print(dist)
     # print(flow)
     solution, value = genetic_algorith(

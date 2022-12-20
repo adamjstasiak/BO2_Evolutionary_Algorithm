@@ -111,12 +111,10 @@ def selection(population, distance, flow, selection_size):  # DONE
             population[i], distance, flow)/sum_p)
     for i in range(len(fitness_table)):
         fitness_table[i] = 1 - fitness_table[i]
-    for i in range(len(fitness_table)-1):
-        fitness_table[i+1] += fitness_table[i]
     copy_population = copy(population)
     for i in range(selection_size):
         selected_individual = choices(
-            copy_population, cum_weights=fitness_table)
+            copy_population, weights=fitness_table)
         selected_population.append(selected_individual[0])
         idx_selected = copy_population.index(selected_individual[0])
         copy_population.remove(selected_individual[0])
@@ -128,7 +126,6 @@ def mutation(solution):
     """
     Mutation fuction , swaping to random gens in individual
     """
-    # TODO
     gen1 = np.random.randint(0, len(solution) - 1)
     gen2 = np.random.randint(0, len(solution) - 1)
     if gen1 != gen2:
@@ -138,7 +135,7 @@ def mutation(solution):
     return solution
 
 
-def pmx(parent_1: list, parent_2: list):  # TODO zrobić pmx
+def pmx(parent_1: list, parent_2: list):
     """
     Function making Partially Matched Crossover between to parents creating two childrens.
     Crossover point is choose randomly.
@@ -240,53 +237,42 @@ def cx(parent_1: list, parent_2: list):
 
 
 def main():
+    dist = [[np.inf, 5, 12, 11, 5, 9],
+            [5, np.inf, 7, 5, 4, 7],
+            [12, 7, np.inf, 1, 6, 10],
+            [11, 5, 1, np.inf, 2, 4],
+            [5, 4, 6, 2, np.inf, 4],
+            [9, 7, 10, 6, 4, np.inf]]
 
-    fabric_list = create_fabric_list(7, 5)
-    p = generate_population(fabric_list,2)
-    c = cx(p[0],p[1])
-    for el in p:
-        print(el)
-    for el in c:
-        print(el)
+    flow = [[np.inf, 4, 2, 2, 3, 1],
+            [4, np.inf, 3, 5, 5, 8],
+            [2, 3, np.inf, 9, 6, 4],
+            [2, 5, 9, np.inf, 7, 9],
+            [3, 5, 6, 7, np.inf, 2],
+            [1, 8, 4, 9, 2, np.inf]]
 
-
-#     dist = [[np.inf, 5, 12, 11, 5, 9],
-#             [5, np.inf, 7, 5, 4, 7],
-#             [12, 7, np.inf, 1, 6, 10],
-#             [11, 5, 1, np.inf, 2, 4],
-#             [5, 4, 6, 2, np.inf, 4],
-#             [9, 7, 10, 6, 4, np.inf]]
-#
-#     flow = [[np.inf, 4, 2, 2, 3, 1],
-#             [4, np.inf, 3, 5, 5, 8],
-#             [2, 3, np.inf, 9, 6, 4],
-#             [2, 5, 9, np.inf, 7, 9],
-#             [3, 5, 6, 7, np.inf, 2],
-#             [1, 8, 4, 9, 2, np.inf]]
-#
-#     dist_matrix = np.array(dist)
-#     flow_matrix = np.array(flow)
-#     fabric_list = create_fabric_list(6, 6)
-#     fab_2 = [2, 3, 4, 5, 0, 1]
-#     fab_3 = [5, 0, 2, 4, 1, 3]
-#     fab_4 = [0, 2, 1, 5, 3, 4]
-#     # print(dist_matrix)
-#     # print(flow_matrix)
-#     solution = operative_function(fabric_list, dist_matrix, flow_matrix)
-#     solution_2 = operative_function(fab_2, dist_matrix, flow_matrix)
-#     solution_3 = operative_function(fab_3, dist_matrix, flow_matrix)
-#     solution_4 = operative_function(fab_4, dist_matrix, flow_matrix)
-#     # print(fabric_list)
-#     print(solution)
-#     print(solution_2)
-#     print(solution_3)
-#     print(solution_4)
-#     # population = generate_population(fabric_list, 5)
-#     # print(population)
-#     # selection_size = 4
-#     # selected_pop = selection(population, dist_matrix,
-#     #                          flow_matrix, selection_size)
-#     # print(selected_pop)
+    dist_matrix = np.array(dist)
+    flow_matrix = np.array(flow)
+    fabric_list = create_fabric_list(6, 6)
+    fab_2 = [2, 3, 4, 5, 0, 1]
+    fab_3 = [5, 0, 2, 4, 1, 3]
+    fab_4 = [0, 2, 1, 5, 3, 4]
+    # print(dist_matrix)
+    # print(flow_matrix)
+    solution = operative_function(fabric_list, dist_matrix, flow_matrix)
+    solution_2 = operative_function(fab_2, dist_matrix, flow_matrix)
+    solution_3 = operative_function(fab_3, dist_matrix, flow_matrix)
+    solution_4 = operative_function(fab_4, dist_matrix, flow_matrix)
+    # print(fabric_list)
+    print(solution)
+    print(solution_2)
+    print(solution_3)
+    print(solution_4)
+    population = generate_population(fabric_list, 5)
+    # print(population)
+    selection_size = 4
+    selected_pop = selection(population, dist_matrix, flow_matrix, selection_size)
+    print(selected_pop)
 
 
 if __name__ == "__main__":
