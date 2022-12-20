@@ -2,7 +2,6 @@ import function as fun
 import numpy as np
 from copy import copy
 
-
 def genetic_algorith(distance, flow, factory_list, population_size, selection_size, number_of_generation, crossover_probability, mutation_probability, min_value=-np.inf, croosover_type='pmx'):
     current_generation = 0
     fitness_table = []
@@ -13,13 +12,14 @@ def genetic_algorith(distance, flow, factory_list, population_size, selection_si
     current_min_value = min(fitness_table)
     best_individual_idx = fitness_table.index(current_min_value)
     best_individual = population[best_individual_idx]
-    # print(best_individual, max_value)
+    print(best_individual, current_min_value)
     if current_min_value <= min_value:
         return best_individual, current_min_value
     while current_generation <= number_of_generation:
         fitness_table_for_current_population = []
         selected_population = fun.selection(
             population, distance, flow, selection_size)
+        #todo 
         cross_p = np.random.randint(0, 100+1)
         if cross_p <= crossover_probability:
             par1_idx = np.random.randint(0, len(selected_population)-1)
@@ -39,7 +39,7 @@ def genetic_algorith(distance, flow, factory_list, population_size, selection_si
         mut_p = np.random.randint(0, 100+1)
         if mut_p <= mutation_probability:
             mutate_idx = np.random.randint(0, len(selected_population)-1)
-            children = fun.mutation(selected_population[mutate_idx])
+            children = fun.swap_mutation(selected_population[mutate_idx])
             selected_population[mutate_idx] = children
         else:
             pass
@@ -55,7 +55,6 @@ def genetic_algorith(distance, flow, factory_list, population_size, selection_si
                 break
         population = selected_population
         current_generation += 1
-
     return best_individual, current_min_value
 
 
@@ -76,26 +75,24 @@ def main():
 
     dist_matrix = np.array(dist)
     flow_matrix = np.array(flow)
-    parcels_number = 20
-    factory_number = 20
-    # fac_list = fun.create_fabric_list(parcels_number, factory_number)
-    fac_list = [2, 3, 4, 5, 0, 1]
+    parcels_number = 6
+    factory_number = 6
+    fac_list = fun.create_fabric_list(parcels_number, factory_number)
+    # fac_list = [2, 3, 4, 5, 0, 1]
     solution, value = genetic_algorith(
-        dist_matrix, flow_matrix, fac_list, 15, 7, 50, 90, 10, croosover_type='pmx')
+        dist_matrix, flow_matrix, fac_list,20, 8, 100, 90, 10, croosover_type='pmx')
     # print(fac_list, fun.operative_function(
     #     fac_list, dist_matrix, flow_matrix), '   - wartosc poczatkowa')
     # print(solution, value, '   - wartosc koncowa')
 
-    dist, flow = fun.create_random_data_matrix(parcels_number, factory_number)
-    fac_list = fun.create_fabric_list(parcels_number, factory_number)
-    # print(fac_list)
-    # print(dist)
-    # print(flow)
-    solution, value = genetic_algorith(
-        dist, flow, fac_list, 30, 15, 20, 90, 10, croosover_type='pmx')
+    # dist, flow = fun.create_random_data_matrix(parcels_number, factory_number)
+    # fac_list = fun.create_fabric_list(parcels_number, factory_number)
+    # # print(fac_list)
+    # # print(dist)
+    # # print(flow)
+    # solution, value = genetic_algorith(
+    #     dist, flow, fac_list, 30, 15, 20, 90, 10, croosover_type='pmx')
     print(solution)
     print(value)
-
-
 if __name__ == "__main__":
     main()
