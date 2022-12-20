@@ -2,7 +2,7 @@ import function as fun
 import numpy as np
 from copy import copy
 
-def genetic_algorith(distance, flow, factory_list, population_size, selection_size, number_of_generation, crossover_probability, mutation_probability, min_value=-np.inf, croosover_type='pmx'):
+def genetic_algorith(distance, flow, factory_list, population_size, selection_size, number_of_generation, crossover_probability,mutation_probability,pmx_probability, cx_probability,swap_probability,inversion_probability,scramble_probability, min_value=-np.inf):
     current_generation = 0
     fitness_table = []
     population = fun.generate_population(factory_list, population_size)
@@ -19,30 +19,38 @@ def genetic_algorith(distance, flow, factory_list, population_size, selection_si
         fitness_table_for_current_population = []
         selected_population = fun.selection(
             population, distance, flow, selection_size)
-        #todo 
-        cross_p = np.random.randint(0, 100+1)
-        if cross_p <= crossover_probability:
-            par1_idx = np.random.randint(0, len(selected_population)-1)
-            par2_idx = np.random.randint(0, len(selected_population)-1)
-            if croosover_type == 'pmx':
-                children_1, children_2 = fun.pmx(
-                    selected_population[par1_idx], selected_population[par2_idx])
-                selected_population[par1_idx] = children_1
-                selected_population[par2_idx] = children_2
-            elif croosover_type == 'cx':
-                children_1, children_2 = fun.cx(
-                    selected_population[par1_idx], selected_population[par2_idx])
-                selected_population[par1_idx] = children_1
-                selected_population[par2_idx] = children_2
-        else:
-            pass
-        mut_p = np.random.randint(0, 100+1)
-        if mut_p <= mutation_probability:
-            mutate_idx = np.random.randint(0, len(selected_population)-1)
-            children = fun.swap_mutation(selected_population[mutate_idx])
-            selected_population[mutate_idx] = children
-        else:
-            pass
+        while len(selected_population) != len(population): 
+            genetic_operation = np.random.randint(0, 100+1)
+            if  mutation_probability < genetic_operation <= crossover_probability:
+                par1_idx = np.random.randint(0, len(selected_population)-1)
+                par2_idx = np.random.randint(0, len(selected_population)-1)
+                cross_type = np.random.randint(0, 100+1)
+                if cross_type <= pmx_probability:
+                    children_1, children_2 = fun.pmx(
+                        selected_population[par1_idx], selected_population[par2_idx])
+                    selected_population.append(children_1)
+                    selected_population.append(children_2)
+                elif pmx_probability < cross_type <= cx_probability:
+                    children_1, children_2 = fun.cx(
+                        selected_population[par1_idx], selected_population[par2_idx])
+                    selected_population.append(children_1)
+                    selected_population.append(children_2)
+            elif genetic_operation <= mutation_probability:
+                mutate_idx = np.random.randint(0, len(selected_population)-1)
+                mut_type = np.random.randint(0,100+1)
+                if mut_type <= swap_probability:
+                    children = fun.swap_mutation(selected_population[mutate_idx])
+                    selected_population[mutate_idx] = children
+                elif swap_probability < mut_type <= inversion_probability:
+                    children = fun.inversion_mutation(selected_population[mutate_idx])
+                    selected_population[mutate_idx] = children
+                elif inversion_probability < mut_type <= scramble_probability:
+                    children = fun.inversion_mutation(selected_population[mutate_idx])
+                    selected_population[mutate_idx] = children
+            else:
+                pass
+
+
         for i in range(len(selected_population)):
             fitness_table_for_current_population.append(
                 fun.operative_function(selected_population[i], distance, flow))
@@ -80,7 +88,7 @@ def main():
     fac_list = fun.create_fabric_list(parcels_number, factory_number)
     # fac_list = [2, 3, 4, 5, 0, 1]
     solution, value = genetic_algorith(
-        dist_matrix, flow_matrix, fac_list,20, 8, 100, 90, 10, croosover_type='pmx')
+        dist_matrix, flow_matrix, fac_list,20, 8, 100, 90, 10,30,100,30,30,40)
     # print(fac_list, fun.operative_function(
     #     fac_list, dist_matrix, flow_matrix), '   - wartosc poczatkowa')
     # print(solution, value, '   - wartosc koncowa')
