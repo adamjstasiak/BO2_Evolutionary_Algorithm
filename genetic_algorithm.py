@@ -5,7 +5,7 @@ import numpy as np
 from copy import copy
 
 
-def genetic_algorith(distance, flow, factory_list, population_size, selection_size, number_of_generation, selection_type='ranking',crossover_probability=1,mutation_probability=1,pmx_probability=1, cx_probability=1,swap_probability=1,inversion_probability=1,scramble_probability=1, min_value=-np.inf):
+def genetic_algorith(distance, flow, factory_list, population_size, selection_size, number_of_generation, selection_type='ranking',crossover_probability=1,mutation_probability=1,pmx_probability=1, cx_probability=1,ox_probability=1,swap_probability=1,inversion_probability=1,scramble_probability=1, min_value=-np.inf):
     current_generation = 0
     fitness_table = []
     population = fun.generate_population(factory_list, population_size)
@@ -34,7 +34,7 @@ def genetic_algorith(distance, flow, factory_list, population_size, selection_si
                 par1_idx = np.random.randint(0, len(selected_population)-1)
                 par2_idx = np.random.randint(0, len(selected_population)-1)
                 cross_type = random.choices(list(fun.Crossover),
-                                                   weights=[cx_probability, pmx_probability])
+                                                   weights=[cx_probability, pmx_probability, ox_probability])
                 cross_type = cross_type[0]
                 children_1 = selected_population[par1_idx]
                 children_2 = selected_population[par2_idx]
@@ -44,6 +44,10 @@ def genetic_algorith(distance, flow, factory_list, population_size, selection_si
 
                 elif cross_type == fun.Crossover.cx:
                     children_1, children_2 = fun.cx(
+                        selected_population[par1_idx], selected_population[par2_idx])
+
+                elif cross_type == fun.Crossover.ox:
+                    children_1, children_2 = fun.ox(
                         selected_population[par1_idx], selected_population[par2_idx])
 
                 selected_population.append(children_1)
@@ -103,7 +107,7 @@ def main():
     fac_list = fun.create_fabric_list(parcels_number, factory_number)
     # fac_list = [2, 3, 4, 5, 0, 1]
     solution, value = genetic_algorith(
-        dist_matrix, flow_matrix, fac_list,50, 30, 100, crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1,
+        dist_matrix, flow_matrix, fac_list,50, 30, 100, crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1,ox_probability=1,
                          swap_probability=1, inversion_probability=1, scramble_probability=1)
     # print(fac_list, fun.operative_function(
     #     fac_list, dist_matrix, flow_matrix), '   - wartosc poczatkowa')

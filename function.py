@@ -186,6 +186,7 @@ class Operations(Enum):
 class Crossover(Enum):
     pmx = 1
     cx = 2
+    ox = 3
 
 
 def pmx(parent_1: list, parent_2: list):
@@ -289,6 +290,50 @@ def cx(parent_1: list, parent_2: list):
     return child_1, child_2
 
 
+def ox(parent_1: list, parent_2: list):
+    """
+    Function making Order Crossover between to parents creating two childrens.
+    Crossover point is choose randomly.
+    """
+    not_erased = erase_inf(parent_1)
+    erase_inf(parent_2)
+    size = len(parent_1)
+    k1 = np.random.randint(0, size - 1)
+    k2 = np.random.randint(0, size - 1)
+    if k2 < k1:
+        temp = k1
+        k1 = k2
+        k2 = temp
+    child_1 = parent_1.copy()
+    child_2 = parent_2.copy()
+    supplement_list_1 = []
+    supplement_list_2 = []
+    for i in range(size):
+        idx = i + k2 + 1
+        if idx > size - 1:
+            idx = idx - size
+        supplement_list_1.append(parent_1[idx])
+        supplement_list_2.append(parent_2[idx])
+    for i in range(k1, k2 + 1):
+        value_1 = parent_1[i]
+        value_2 = parent_2[i]
+        child_1[i] = value_2
+        child_2[i] = value_1
+        supplement_list_1.remove(value_2)
+        supplement_list_2.remove(value_1)
+    for i in range(size - (k2-k1+1)):
+        idx = i + k2 + 1
+        if idx > size-1:
+            idx = idx - size
+        child_1[idx] = supplement_list_1[i]
+        child_2[idx] = supplement_list_2[i]
+
+    return_inf(parent_1, not_erased)
+    return_inf(parent_2, not_erased)
+    return_inf(child_1, not_erased)
+    return_inf(child_2, not_erased)
+    return child_1, child_2
+
 def main():
 
     # fabric_list = create_fabric_list(7, 5)
@@ -318,8 +363,9 @@ def main():
     dist_matrix = np.array(dist)
     flow_matrix = np.array(flow)
     fabric_list = create_fabric_list(6, 6)
-#     
     population = generate_population(fabric_list, 7)
+    print(population[0],population[1])
+    print(ox(population[0], population[1]))
     selected = selection(population,dist_matrix,flow_matrix,4)
     print(population)
     print(selected)
