@@ -191,6 +191,36 @@ class Parameters(tk.Frame):
                                 command=self.start_algorithm)
         self.start.grid(row=6, column=0, padx=5, pady=5, columnspan=2)
 
+        # Write solution
+        self.l = tk.Listbox(self, height=5, width=45)
+        self.l.grid(column=0, row=2, columnspan=3)
+
+        # Canvas
+        self.canv = tk.Canvas(self, width=650, height=400, background='pink')
+        self.canv.grid(row=1, column=4, padx=5,
+                       pady=5, rowspan=2, columnspan=2)
+        self.canv.bind("<ButtonPress-1>", self.paint)
+
+        pop_size_str = ttk.Label(self, text='Number of parcels to choose')
+        pop_size_str.grid(row=0, column=4, padx=5, pady=3, sticky='E')
+
+        # additional, not necessary - number of parcels can be bigger than fabrics
+        self.number_of_parcels = tk.IntVar()
+        self.number_of_parcels.trace("w", lambda name, index,
+                                     mode, sv=self.number_of_parcels: self.callback(sv))
+        parcels_entry = ttk.Entry(
+            self, textvariable=self.number_of_parcels, justify='right')
+        parcels_entry.grid(row=0, column=5, padx=5, pady=3, sticky='W')
+
+        self.parcel_distances = []
+
+    def paint(self, event):
+        self.parcel_distances.append((event.x, event.y))
+        python_green = "#476042"
+        x1, y1 = (event.x - 10), (event.y - 10)
+        x2, y2 = (event.x + 10), (event.y + 10)
+        self.canv.create_oval(x1, y1, x2, y2, fill=python_green)
+
     def callback(self, sv):
         """Return value of entered value"""
         return print(sv._name, sv.get())
@@ -198,6 +228,10 @@ class Parameters(tk.Frame):
     def start_algorithm(self):
         graph_page = self.controller.get_page(FunctionFlowGraph)
         graph_page.plot_dataframe(graph_page.canvas, graph_page.ax, df)
+        if self.l.size() > 4:
+            self.l.delete(0)
+        self.l.insert('end', 'Solution: %d' % 1)
+        print(self.parcel_distances)
 
 
 # second window frame ChooseParcels
@@ -244,10 +278,10 @@ class FunctionFlowGraph(tk.Frame):
         s.configure('My.TFrame', background='green')
         self.plot_frame = ttk.Frame(
             self, style='My.TFrame', width=20, height=20)
-        self.plot_frame.grid(row=1, padx=5, pady=5, columnspan=4)
+        self.plot_frame.grid(row=1, padx=5, pady=5, columnspan=1000)
 
         # Space for graph
-        figure = plt.Figure(figsize=(8, 6), dpi=100)
+        figure = plt.Figure(figsize=(10, 6), dpi=100)
         self.ax = figure.add_axes([0.1, 0.1, 0.8, 0.8])
         self.canvas = FigureCanvasTkAgg(figure, self.plot_frame)
         self.canvas.get_tk_widget().grid(row=0, column=1)
