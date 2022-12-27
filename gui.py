@@ -3,6 +3,7 @@ from tkinter import ttk
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
 
 
 class tkinterApp(tk.Tk):
@@ -25,10 +26,10 @@ class tkinterApp(tk.Tk):
 
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (Parameters, ChooseParcels, FunctionFlowGraph):
+        for F in (Parameters, GraphicalSolution, FunctionFlowGraph):
             frame = F(container, self)
             # initializing frame of that object from
-            # Parameters, ChooseParcels, FunctionFlowGraph respectively with
+            # Parameters, GraphicalSolution, FunctionFlowGraph respectively with
             # for loop
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -56,8 +57,8 @@ class Parameters(tk.Frame):
                                  command=lambda: controller.show_frame(Parameters))
         param_frame.grid(row=0, column=0, padx=5, pady=5)
 
-        chart_frame = ttk.Button(self, text="Choose Parcels",
-                                 command=lambda: controller.show_frame(ChooseParcels))
+        chart_frame = ttk.Button(self, text="Graphical Solution",
+                                 command=lambda: controller.show_frame(GraphicalSolution))
         chart_frame.grid(row=0, column=1, padx=5, pady=5)
 
         button2 = ttk.Button(self, text="Function Flow Graph",
@@ -186,20 +187,20 @@ class Parameters(tk.Frame):
 
         # Start
         s = ttk.Style()
-        s.configure('my.TButton', font=('Helvetica', 12))
+        s.configure('my.TButton', font=('Helvetica', 20))
         self.start = ttk.Button(label_frame, text="Start", style='my.TButton',
                                 command=self.start_algorithm)
         self.start.grid(row=6, column=0, padx=5, pady=5, columnspan=2)
 
         # Write solution
         self.l = tk.Listbox(self, height=5, width=45)
-        self.l.grid(column=0, row=2, columnspan=3)
+        self.l.grid(column=0, row=3, columnspan=3)
 
         # Canvas
         self.canv = tk.Canvas(self, width=650, height=400, background='pink')
         self.canv.grid(row=1, column=4, padx=5,
                        pady=5, rowspan=2, columnspan=2)
-        self.canv.bind("<ButtonPress-1>", self.paint)
+        self.canv.bind("<ButtonPress-1>", self.paint_parcels)
 
         pop_size_str = ttk.Label(self, text='Number of parcels to choose')
         pop_size_str.grid(row=0, column=4, padx=5, pady=3, sticky='E')
@@ -212,14 +213,43 @@ class Parameters(tk.Frame):
             self, textvariable=self.number_of_parcels, justify='right')
         parcels_entry.grid(row=0, column=5, padx=5, pady=3, sticky='W')
 
-        self.parcel_distances = []
+        # Reset
+        self.reset = ttk.Button(self, text="reset", style='my.TButton',
+                                command=self.reset_canvas)
+        self.reset.grid(row=2, column=0, padx=5, pady=5, columnspan=3)
 
-    def paint(self, event):
-        self.parcel_distances.append((event.x, event.y))
-        python_green = "#476042"
-        x1, y1 = (event.x - 10), (event.y - 10)
-        x2, y2 = (event.x + 10), (event.y + 10)
-        self.canv.create_oval(x1, y1, x2, y2, fill=python_green)
+        self.parcel_distances = []
+        self.increment = 0
+
+    def distance_matrix_from_points(self):
+        matrix = np.matrix(
+            np.ones((len(self.parcel_distances), len(self.parcel_distances))))
+        for i, el_1 in enumerate(self.parcel_distances):
+            for j, el_2 in enumerate(self.parcel_distances):
+                matrix[i, j] = np.sqrt(
+                    (el_1[0] - el_2[0])**2 + (el_1[1] - el_2[1])**2)
+        np.fill_diagonal(matrix, np.inf)
+        return matrix
+
+    def reset_canvas(self):
+        self.canv.delete('all')
+        self.parcel_distances.clear()
+        self.l.delete(0, tk.END)
+        self.increment = 0
+
+    def paint_parcels(self, event):
+        self.parcel_distances.append([event.x, event.y])
+        x1, y1 = (event.x - 12), (event.y - 12)
+        x2, y2 = (event.x + 12), (event.y + 12)
+        self.canv.create_oval(x1, y1, x2, y2, fill='green')
+        self.canv.create_text(event.x, event.y, text=str(
+            self.increment), fill="black", font=('Helvetica 15 bold'))
+        self.increment += 1
+
+    def paint_factories(self):
+        for i, el in enumerate(self.parcel_distances):
+            self.canv.create_text(el[0]+15, el[1]-15, text=str(
+                i), fill="magenta", font=('Helvetica 15 bold'))
 
     def callback(self, sv):
         """Return value of entered value"""
@@ -230,30 +260,40 @@ class Parameters(tk.Frame):
         graph_page.plot_dataframe(graph_page.canvas, graph_page.ax, df)
         if self.l.size() > 4:
             self.l.delete(0)
-        self.l.insert('end', 'Solution: %d' % 1)
+        if len(self.parcel_distances) > 1:
+            self.l.insert('end', 'Solution: %d' % 1)
+        else:
+            self.l.insert('end', 'Input at least two points')
         print(self.parcel_distances)
+        distance_matrix = self.distance_matrix_from_points()
+        self.paint_factories()
+        print(distance_matrix)
 
 
-# second window frame ChooseParcels
-class ChooseParcels(tk.Frame):
+# second window frame GraphicalSolution
+class GraphicalSolution(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-
-        label = ttk.Label(self, text="Choose Parcels")
-        label.grid(row=1, column=1, padx=5, pady=5)
 
         param_frame = ttk.Button(self, text="Parameters",
                                  command=lambda: controller.show_frame(Parameters))
         param_frame.grid(row=0, column=0, padx=5, pady=5)
 
-        chart_frame = ttk.Button(self, text="Choose Parcels",
-                                 command=lambda: controller.show_frame(ChooseParcels))
+        chart_frame = ttk.Button(self, text="Graphical Solution",
+                                 command=lambda: controller.show_frame(GraphicalSolution))
         chart_frame.grid(row=0, column=1, padx=5, pady=5)
 
         button2 = ttk.Button(self, text="Function Flow Graph",
                              command=lambda: controller.show_frame(FunctionFlowGraph))
         button2.grid(row=0, column=2, padx=5, pady=5)
+
+        # Canvas
+        self.canv_solution = tk.Canvas(
+            self, width=650, height=400, background='pink')
+        self.canv_solution.grid(row=1, column=0, padx=5,
+                                pady=5, rowspan=2, columnspan=2000)
+        # self.canv.bind("<ButtonPress-1>", self.paint_parcels)
 
 
 # third window frame FunctionFlowGraph
@@ -266,8 +306,8 @@ class FunctionFlowGraph(tk.Frame):
                                  command=lambda: controller.show_frame(Parameters))
         param_frame.grid(row=0, column=0, padx=5, pady=5)
 
-        chart_frame = ttk.Button(self, text="Choose Parcels",
-                                 command=lambda: controller.show_frame(ChooseParcels))
+        chart_frame = ttk.Button(self, text="Graphical Solution",
+                                 command=lambda: controller.show_frame(GraphicalSolution))
         chart_frame.grid(row=0, column=1, padx=5, pady=5)
 
         button2 = ttk.Button(self, text="Function Flow Graph",
@@ -278,7 +318,7 @@ class FunctionFlowGraph(tk.Frame):
         s.configure('My.TFrame', background='green')
         self.plot_frame = ttk.Frame(
             self, style='My.TFrame', width=20, height=20)
-        self.plot_frame.grid(row=1, padx=5, pady=5, columnspan=1000)
+        self.plot_frame.grid(row=1, column=0, padx=5, pady=5, columnspan=2000)
 
         # Space for graph
         figure = plt.Figure(figsize=(10, 6), dpi=100)
