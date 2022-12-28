@@ -26,10 +26,10 @@ class tkinterApp(tk.Tk):
 
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (Parameters, GraphicalSolution, FunctionFlowGraph):
+        for F in (Parameters, FunctionFlowGraph):
             frame = F(container, self)
             # initializing frame of that object from
-            # Parameters, GraphicalSolution, FunctionFlowGraph respectively with
+            # Parameters, FunctionFlowGraph respectively with
             # for loop
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -57,18 +57,14 @@ class Parameters(tk.Frame):
                                  command=lambda: controller.show_frame(Parameters))
         param_frame.grid(row=0, column=0, padx=5, pady=5)
 
-        chart_frame = ttk.Button(self, text="Graphical Solution",
-                                 command=lambda: controller.show_frame(GraphicalSolution))
-        chart_frame.grid(row=0, column=1, padx=5, pady=5)
-
-        button2 = ttk.Button(self, text="Function Flow Graph",
-                             command=lambda: controller.show_frame(FunctionFlowGraph))
-        button2.grid(row=0, column=2, padx=5, pady=5)
+        graph_frame = ttk.Button(self, text="Function Flow Graph",
+                                 command=lambda: controller.show_frame(FunctionFlowGraph))
+        graph_frame.grid(row=0, column=1, padx=5, pady=5)
 
         # Main parameters frame
         label_frame = ttk.LabelFrame(
             self, text="Population parameters")
-        label_frame.grid(row=1, column=0, padx=5, pady=5, columnspan=4)
+        label_frame.grid(row=1, column=0, padx=20, pady=5, columnspan=4)
 
         # Population size row
         pop_size_str = ttk.Label(label_frame, text='Population size')
@@ -77,19 +73,21 @@ class Parameters(tk.Frame):
         self.population_size = tk.IntVar()
         self.population_size.trace("w", lambda name, index,
                                    mode, sv=self.population_size: self.callback(sv))
+        self.population_size.set(20)
         pop_entry = ttk.Entry(
             label_frame, textvariable=self.population_size, justify='right')
         pop_entry.grid(row=0, column=1, padx=5, pady=3)
 
         # Parent percentage row
-        parent_str = ttk.Label(label_frame, text='Parents [%]')
+        parent_str = ttk.Label(label_frame, text='Selection size [%]')
         parent_str.grid(row=1, column=0, padx=5, pady=3)
 
-        self.parent_percentage = tk.IntVar()
-        self.parent_percentage.trace("w", lambda name, index,
-                                     mode, sv=self.parent_percentage: self.callback(sv))
+        self.selection_size = tk.IntVar()
+        self.selection_size.trace("w", lambda name, index,
+                                  mode, sv=self.selection_size: self.callback(sv))
+        self.selection_size.set(50)
         par_entry = ttk.Entry(
-            label_frame, textvariable=self.parent_percentage, justify='right')
+            label_frame, textvariable=self.selection_size, justify='right')
         par_entry.grid(row=1, column=1, padx=5, pady=3)
 
         # Mutation percentage row
@@ -99,6 +97,7 @@ class Parameters(tk.Frame):
         self.mutation_percentage = tk.IntVar()
         self.mutation_percentage.trace("w", lambda name, index,
                                        mode, sv=self.mutation_percentage: self.callback(sv))
+        self.mutation_percentage.set(5)
         mut_entry = ttk.Entry(
             label_frame, textvariable=self.mutation_percentage, justify='right')
         mut_entry.grid(row=2, column=1, padx=5, pady=3)
@@ -110,6 +109,7 @@ class Parameters(tk.Frame):
         self.number_of_generations = tk.IntVar()
         self.number_of_generations.trace("w", lambda name, index,
                                          mode, sv=self.number_of_generations: self.callback(sv))
+        self.number_of_generations.set(100)
         num_of_gen_entry = ttk.Entry(
             label_frame, textvariable=self.number_of_generations, justify='right')
         num_of_gen_entry.grid(row=3, column=1, padx=5, pady=3)
@@ -127,6 +127,7 @@ class Parameters(tk.Frame):
         self.swap_mutation = tk.IntVar()
         self.swap_mutation.trace("w", lambda name, index,
                                  mode, sv=self.swap_mutation: self.callback(sv))
+        self.swap_mutation.set(1)
         swap_mutation_button = ttk.Checkbutton(mutation_frame, text='Swap',
                                                variable=self.swap_mutation)
         swap_mutation_button.grid(row=0, column=0, padx=5, pady=2, sticky='w')
@@ -151,6 +152,7 @@ class Parameters(tk.Frame):
         self.PMX_crossover = tk.IntVar()
         self.PMX_crossover.trace("w", lambda name, index,
                                  mode, sv=self.PMX_crossover: self.callback(sv))
+        self.PMX_crossover.set(1)
         PMX_crossover_button = ttk.Checkbutton(crossover_frame, text='PMX',
                                                variable=self.PMX_crossover)
         PMX_crossover_button.grid(row=0, column=0, padx=5, pady=2, sticky='w')
@@ -177,6 +179,7 @@ class Parameters(tk.Frame):
         self.selection = tk.StringVar()
         self.selection.trace("w", lambda name, index,
                              mode, sv=self.selection: self.callback(sv))
+        self.selection.set('roulette')
         roulette_selection_radiobutton = ttk.Radiobutton(
             selection_frame, text='Roulette', variable=self.selection, value='roulette')
         roulette_selection_radiobutton.grid(row=0, column=0, padx=5, pady=2)
@@ -192,31 +195,39 @@ class Parameters(tk.Frame):
                                 command=self.start_algorithm)
         self.start.grid(row=6, column=0, padx=5, pady=5, columnspan=2)
 
-        # Write solution
-        self.l = tk.Listbox(self, height=5, width=45)
-        self.l.grid(column=0, row=3, columnspan=3)
-
         # Canvas
-        self.canv = tk.Canvas(self, width=650, height=400, background='pink')
+        self.canv = tk.Canvas(self, width=745, height=520,
+                              background='pink', borderwidth=10)
         self.canv.grid(row=1, column=4, padx=5,
-                       pady=5, rowspan=2, columnspan=2)
+                       pady=5, rowspan=3, columnspan=2)
         self.canv.bind("<ButtonPress-1>", self.paint_parcels)
 
-        pop_size_str = ttk.Label(self, text='Number of parcels to choose')
-        pop_size_str.grid(row=0, column=4, padx=5, pady=3, sticky='E')
+        # Parcels frame
+        parcel_frame = ttk.LabelFrame(
+            self, text="Parcels")
+        parcel_frame.grid(row=2, column=0, padx=5, pady=5, columnspan=4)
 
         # additional, not necessary - number of parcels can be bigger than fabrics
+        pop_size_str = ttk.Label(parcel_frame, text='Max number of parcels')
+        pop_size_str.grid(row=0, column=0, padx=5,
+                          pady=3, sticky='E')
+
         self.number_of_parcels = tk.IntVar()
         self.number_of_parcels.trace("w", lambda name, index,
                                      mode, sv=self.number_of_parcels: self.callback(sv))
+        self.number_of_parcels.set(6)
         parcels_entry = ttk.Entry(
-            self, textvariable=self.number_of_parcels, justify='right')
-        parcels_entry.grid(row=0, column=5, padx=5, pady=3, sticky='W')
+            parcel_frame, textvariable=self.number_of_parcels, justify='right')
+        parcels_entry.grid(row=0, column=1, padx=5, pady=3, sticky='W')
 
         # Reset
-        self.reset = ttk.Button(self, text="reset", style='my.TButton',
+        self.reset = ttk.Button(parcel_frame, text="reset", style='my.TButton',
                                 command=self.reset_canvas)
-        self.reset.grid(row=2, column=0, padx=5, pady=5, columnspan=3)
+        self.reset.grid(row=1, column=0, padx=5, pady=10, columnspan=3)
+
+        # Write solution
+        self.l = tk.Listbox(self, height=5, width=46)
+        self.l.grid(column=0, row=3, padx=20, pady=10, columnspan=3)
 
         self.parcel_distances = []
         self.increment = 0
@@ -238,13 +249,14 @@ class Parameters(tk.Frame):
         self.increment = 0
 
     def paint_parcels(self, event):
-        self.parcel_distances.append([event.x, event.y])
-        x1, y1 = (event.x - 12), (event.y - 12)
-        x2, y2 = (event.x + 12), (event.y + 12)
-        self.canv.create_oval(x1, y1, x2, y2, fill='green')
-        self.canv.create_text(event.x, event.y, text=str(
-            self.increment), fill="black", font=('Helvetica 15 bold'))
-        self.increment += 1
+        if self.increment < self.number_of_parcels.get():
+            self.parcel_distances.append([event.x, event.y])
+            x1, y1 = (event.x - 12), (event.y - 12)
+            x2, y2 = (event.x + 12), (event.y + 12)
+            self.canv.create_oval(x1, y1, x2, y2, fill='green')
+            self.canv.create_text(event.x, event.y, text=str(
+                self.increment), fill="black", font=('Helvetica 15 bold'))
+            self.increment += 1
 
     def paint_factories(self):
         for i, el in enumerate(self.parcel_distances):
@@ -253,11 +265,17 @@ class Parameters(tk.Frame):
 
     def callback(self, sv):
         """Return value of entered value"""
-        return print(sv._name, sv.get())
+        return [sv._name, sv.get()]
 
     def start_algorithm(self):
+        # graph_page
         graph_page = self.controller.get_page(FunctionFlowGraph)
+
         graph_page.plot_dataframe(graph_page.canvas, graph_page.ax, df)
+
+        distance_matrix = self.distance_matrix_from_points()
+        self.paint_factories()
+
         if self.l.size() > 4:
             self.l.delete(0)
         if len(self.parcel_distances) > 1:
@@ -265,38 +283,11 @@ class Parameters(tk.Frame):
         else:
             self.l.insert('end', 'Input at least two points')
         print(self.parcel_distances)
-        distance_matrix = self.distance_matrix_from_points()
-        self.paint_factories()
+
         print(distance_matrix)
 
 
-# second window frame GraphicalSolution
-class GraphicalSolution(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.controller = controller
-
-        param_frame = ttk.Button(self, text="Parameters",
-                                 command=lambda: controller.show_frame(Parameters))
-        param_frame.grid(row=0, column=0, padx=5, pady=5)
-
-        chart_frame = ttk.Button(self, text="Graphical Solution",
-                                 command=lambda: controller.show_frame(GraphicalSolution))
-        chart_frame.grid(row=0, column=1, padx=5, pady=5)
-
-        button2 = ttk.Button(self, text="Function Flow Graph",
-                             command=lambda: controller.show_frame(FunctionFlowGraph))
-        button2.grid(row=0, column=2, padx=5, pady=5)
-
-        # Canvas
-        self.canv_solution = tk.Canvas(
-            self, width=650, height=400, background='pink')
-        self.canv_solution.grid(row=1, column=0, padx=5,
-                                pady=5, rowspan=2, columnspan=2000)
-        # self.canv.bind("<ButtonPress-1>", self.paint_parcels)
-
-
-# third window frame FunctionFlowGraph
+# second window frame FunctionFlowGraph
 class FunctionFlowGraph(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -304,15 +295,11 @@ class FunctionFlowGraph(tk.Frame):
 
         param_frame = ttk.Button(self, text="Parameters",
                                  command=lambda: controller.show_frame(Parameters))
-        param_frame.grid(row=0, column=0, padx=5, pady=5)
+        param_frame.grid(row=0, column=0, padx=22, pady=5)
 
-        chart_frame = ttk.Button(self, text="Graphical Solution",
-                                 command=lambda: controller.show_frame(GraphicalSolution))
-        chart_frame.grid(row=0, column=1, padx=5, pady=5)
-
-        button2 = ttk.Button(self, text="Function Flow Graph",
-                             command=lambda: controller.show_frame(FunctionFlowGraph))
-        button2.grid(row=0, column=2, padx=5, pady=5)
+        graph_frame = ttk.Button(self, text="Function Flow Graph",
+                                 command=lambda: controller.show_frame(FunctionFlowGraph))
+        graph_frame.grid(row=0, column=2, padx=21, pady=5, sticky='E')
 
         s = ttk.Style()
         s.configure('My.TFrame', background='green')
@@ -321,12 +308,13 @@ class FunctionFlowGraph(tk.Frame):
         self.plot_frame.grid(row=1, column=0, padx=5, pady=5, columnspan=2000)
 
         # Space for graph
-        figure = plt.Figure(figsize=(10, 6), dpi=100)
+        figure = plt.Figure(figsize=(11, 6), dpi=100)
         self.ax = figure.add_axes([0.1, 0.1, 0.8, 0.8])
         self.canvas = FigureCanvasTkAgg(figure, self.plot_frame)
         self.canvas.get_tk_widget().grid(row=0, column=1)
         self.canvas.draw()
 
+    # TODO: change to get dataframe from other file
     def plot_dataframe(self, canvas, ax, df):
         ax.clear()         # clear axes from previous plot
         ax.plot(df.year, df.unemployment_rate)
