@@ -6,6 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 from genetic_algorithm import genetic_algorithm
 import function as fun
+from copy import copy
 
 
 class tkinterApp(tk.Tk):
@@ -233,6 +234,7 @@ class Parameters(tk.Frame):
 
         self.parcel_distances = []
         self.increment = 0
+        self.canv_solutions = []
 
     def distance_matrix_from_points(self):
         matrix = np.matrix(
@@ -260,11 +262,15 @@ class Parameters(tk.Frame):
                 self.increment), fill="black", font=('Helvetica 15 bold'))
             self.increment += 1
 
-    # TODO: change to print on appropriate parcels
-    def paint_factories(self):
-        for i, el in enumerate(self.parcel_distances):
-            self.canv.create_text(el[0]+15, el[1]-15, text=str(
-                i), fill="magenta", font=('Helvetica 15 bold'))
+    def paint_factories(self, solution):
+        for el in self.canv_solutions:
+            self.canv.delete(el)
+        self.canv_solutions.clear()
+        solution_factories = [x for _, x in sorted(
+            zip(solution, self.parcel_distances))]
+        for i, el in enumerate(solution_factories):
+            self.canv_solutions.append(self.canv.create_text(el[0]+15, el[1]-15, text=str(
+                i), fill="magenta", font=('Helvetica 15 bold')))
 
     def callback(self, sv):
         """Return value of entered value"""
@@ -301,9 +307,10 @@ class Parameters(tk.Frame):
                                      inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get())
 
         # TODO: Enter dataframe with min values from algorithm
-        graph_page.plot_dataframe(graph_page.canvas, graph_page.ax, df)
+        # TODO: Change setting default value to max parcels (equal to factories list size)
+        graph_page.plot_dataframe(graph_page.canvas, graph_page.ax, df)  # df
 
-        self.paint_factories()
+        self.paint_factories(solution[0])
 
         if self.solution.size() > 4:
             self.solution.delete(0)
@@ -348,8 +355,8 @@ class FunctionFlowGraph(tk.Frame):
         canvas.draw()
 
 
-df = {'year': [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010],
-      'unemployment_rate': [9.8, 12, 8, 7.2, 6.9, 7, 6.5, 6.2, 5.5, 6.3]
+df = {'year': [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2005, 2010],
+      'unemployment_rate': [9.8, 12, 8, 7.2, 6.9, 7, 6.5, 6.2, 5.5, 6.3, 6.1]
       }
 df = pd.DataFrame(df)
 
