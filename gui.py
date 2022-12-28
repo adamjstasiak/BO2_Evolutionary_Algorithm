@@ -4,6 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
+from genetic_algorithm import genetic_algorithm
+import function as fun
 
 
 class tkinterApp(tk.Tk):
@@ -226,8 +228,8 @@ class Parameters(tk.Frame):
         self.reset.grid(row=1, column=0, padx=5, pady=10, columnspan=3)
 
         # Write solution
-        self.l = tk.Listbox(self, height=5, width=46)
-        self.l.grid(column=0, row=3, padx=20, pady=10, columnspan=3)
+        self.solution = tk.Listbox(self, height=5, width=46)
+        self.solution.grid(column=0, row=3, padx=20, pady=10, columnspan=3)
 
         self.parcel_distances = []
         self.increment = 0
@@ -237,15 +239,15 @@ class Parameters(tk.Frame):
             np.ones((len(self.parcel_distances), len(self.parcel_distances))))
         for i, el_1 in enumerate(self.parcel_distances):
             for j, el_2 in enumerate(self.parcel_distances):
-                matrix[i, j] = np.sqrt(
-                    (el_1[0] - el_2[0])**2 + (el_1[1] - el_2[1])**2)
+                matrix[i, j] = int(np.sqrt(
+                    (el_1[0] - el_2[0])**2 + (el_1[1] - el_2[1])**2))
         np.fill_diagonal(matrix, np.inf)
-        return matrix
+        return np.array(matrix)
 
     def reset_canvas(self):
         self.canv.delete('all')
         self.parcel_distances.clear()
-        self.l.delete(0, tk.END)
+        self.solution.delete(0, tk.END)
         self.increment = 0
 
     def paint_parcels(self, event):
@@ -258,6 +260,7 @@ class Parameters(tk.Frame):
                 self.increment), fill="black", font=('Helvetica 15 bold'))
             self.increment += 1
 
+    # TODO: change to print on appropriate parcels
     def paint_factories(self):
         for i, el in enumerate(self.parcel_distances):
             self.canv.create_text(el[0]+15, el[1]-15, text=str(
@@ -270,21 +273,45 @@ class Parameters(tk.Frame):
     def start_algorithm(self):
         # graph_page
         graph_page = self.controller.get_page(FunctionFlowGraph)
+        distance_matrix = self.distance_matrix_from_points()
 
+        # TODO: Make factory list by size from other file (txt, csv, xls)
+        factory_list = fun.create_fabric_list(6, 6)
+
+        cross_probability = 1
+        if self.PMX_crossover.get() == 1 or self.OX_crossover.get() == 1 or self.CX_crossover.get() == 1:
+            cross_probability = 1
+        else:
+            cross_probability = 0
+        mut_probability = 1
+        if self.swap_mutation.get() == 1 or self.inverse_mutation.get() == 1 or self.scramble_mutation.get() == 1:
+            mut_probability = 1
+        else:
+            mut_probability = 0
+
+        if len(factory_list) > len(distance_matrix[0]):
+            self.solution.insert(
+                'end', 'Number of parcels is smaller than', 'number of fabrics', 'ADD NEW PARCELS')
+
+        solution = genetic_algorithm(distance_matrix, flow_matrix, factory_list, self.population_size.get(),
+                                     self.selection_size.get(), self.number_of_generations.get(), selection_type=self.selection.get(),
+                                     crossover_probability=cross_probability, mutation_probability=mut_probability,
+                                     pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
+                                     ox_probability=self.OX_crossover.get(), swap_probability=self.swap_mutation.get(),
+                                     inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get())
+
+        # TODO: Enter dataframe with min values from algorithm
         graph_page.plot_dataframe(graph_page.canvas, graph_page.ax, df)
 
-        distance_matrix = self.distance_matrix_from_points()
         self.paint_factories()
 
-        if self.l.size() > 4:
-            self.l.delete(0)
+        if self.solution.size() > 4:
+            self.solution.delete(0)
         if len(self.parcel_distances) > 1:
-            self.l.insert('end', 'Solution: %d' % 1)
+            self.solution.insert('end', 'Solution: %s' % str(
+                str(solution[0]) + '  sum: ' + str(solution[1])))
         else:
-            self.l.insert('end', 'Input at least two points')
-        print(self.parcel_distances)
-
-        print(distance_matrix)
+            self.solution.insert('end', 'Input at least two points')
 
 
 # second window frame FunctionFlowGraph
@@ -325,6 +352,14 @@ df = {'year': [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010],
       'unemployment_rate': [9.8, 12, 8, 7.2, 6.9, 7, 6.5, 6.2, 5.5, 6.3]
       }
 df = pd.DataFrame(df)
+
+flow = [[np.inf, 4, 2, 2, 3, 1],
+        [4, np.inf, 3, 5, 5, 8],
+        [2, 3, np.inf, 9, 6, 4],
+        [2, 5, 9, np.inf, 7, 9],
+        [3, 5, 6, 7, np.inf, 2],
+        [1, 8, 4, 9, 2, np.inf]]
+flow_matrix = np.array(flow)
 
 
 def main():

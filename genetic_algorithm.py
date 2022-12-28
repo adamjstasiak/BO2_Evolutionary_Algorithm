@@ -5,7 +5,7 @@ import numpy as np
 from copy import copy
 
 
-def genetic_algorith(distance, flow, factory_list, population_size, selection_size, number_of_generation, selection_type='ranking',crossover_probability=1,mutation_probability=1,pmx_probability=1, cx_probability=1,ox_probability=1,swap_probability=1,inversion_probability=1,scramble_probability=1, min_value=-np.inf):
+def genetic_algorithm(distance, flow, factory_list, population_size, selection_size, number_of_generation, selection_type='ranking', crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1, ox_probability=1, swap_probability=1, inversion_probability=1, scramble_probability=1, min_value=-np.inf):
     current_generation = 0
     fitness_table = []
     population = fun.generate_population(factory_list, population_size)
@@ -28,13 +28,14 @@ def genetic_algorith(distance, flow, factory_list, population_size, selection_si
             selected_population = fun.ranking_selection(
                 population, distance, flow, selection_size)
         while len(selected_population) != len(population):
-            genetic_operation = random.choices(list(fun.Operations), weights=[mutation_probability, crossover_probability])
+            genetic_operation = random.choices(list(fun.Operations), weights=[
+                                               mutation_probability, crossover_probability])
             genetic_operation = genetic_operation[0]
             if genetic_operation == fun.Operations.crossover:
                 par1_idx = np.random.randint(0, len(selected_population)-1)
                 par2_idx = np.random.randint(0, len(selected_population)-1)
                 cross_type = random.choices(list(fun.Crossover),
-                                                   weights=[cx_probability, pmx_probability, ox_probability])
+                                            weights=[cx_probability, pmx_probability, ox_probability])
                 cross_type = cross_type[0]
                 children_1 = selected_population[par1_idx]
                 children_2 = selected_population[par2_idx]
@@ -56,16 +57,19 @@ def genetic_algorith(distance, flow, factory_list, population_size, selection_si
             elif genetic_operation == fun.Operations.mutation:
                 mutate_idx = np.random.randint(0, len(selected_population)-1)
                 mut_type = random.choices(list(fun.Mutations),
-                                          weights=[swap_probability,scramble_probability,inversion_probability])
+                                          weights=[swap_probability, scramble_probability, inversion_probability])
                 mut_type = mut_type[0]
                 if mut_type == fun.Mutations.swap:
-                    children = fun.swap_mutation(selected_population[mutate_idx])
+                    children = fun.swap_mutation(
+                        selected_population[mutate_idx])
                     selected_population[mutate_idx] = children
                 elif mut_type == fun.Mutations.inversion:
-                    children = fun.inversion_mutation(selected_population[mutate_idx])
+                    children = fun.inversion_mutation(
+                        selected_population[mutate_idx])
                     selected_population[mutate_idx] = children
                 elif mut_type == fun.Mutations.scramble:
-                    children = fun.scramble_mutation(selected_population[mutate_idx])
+                    children = fun.scramble_mutation(
+                        selected_population[mutate_idx])
                     selected_population[mutate_idx] = children
             else:
                 pass
@@ -76,7 +80,8 @@ def genetic_algorith(distance, flow, factory_list, population_size, selection_si
         max_selected = min(fitness_table_for_current_population)
         if max_selected < current_min_value:
             current_min_value = max_selected
-            idx_selected = fitness_table_for_current_population.index(current_min_value)
+            idx_selected = fitness_table_for_current_population.index(
+                current_min_value)
             best_individual = selected_population[idx_selected]
             if current_min_value <= min_value:
                 break
@@ -106,9 +111,9 @@ def main():
     factory_number = 6
     fac_list = fun.create_fabric_list(parcels_number, factory_number)
     # fac_list = [2, 3, 4, 5, 0, 1]
-    solution, value = genetic_algorith(
-        dist_matrix, flow_matrix, fac_list,50, 30, 100, crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1,ox_probability=1,
-                         swap_probability=1, inversion_probability=1, scramble_probability=1)
+    solution, value = genetic_algorithm(
+        dist_matrix, flow_matrix, fac_list, 50, 30, 100, crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1, ox_probability=1,
+        swap_probability=1, inversion_probability=1, scramble_probability=1)
     # print(fac_list, fun.operative_function(
     #     fac_list, dist_matrix, flow_matrix), '   - wartosc poczatkowa')
     # print(solution, value, '   - wartosc koncowa')
@@ -118,9 +123,11 @@ def main():
     # # print(fac_list)
     # # print(dist)
     # # print(flow)
-    # solution, value = genetic_algorith(
-    #     dist, flow, fac_list, 30, 15, 20, 90, 10, croosover_type='pmx')
+    # solution, value = genetic_algorithm(
+    #     dist, flow, fac_list, 30, 15, 20, 90, 10, crossover_type='pmx')
     print(solution)
     print(value)
+
+
 if __name__ == "__main__":
     main()
