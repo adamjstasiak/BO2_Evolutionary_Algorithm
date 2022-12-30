@@ -93,21 +93,25 @@ class Parameters(tk.Frame):
             label_frame, textvariable=self.selection_size, justify='right')
         par_entry.grid(row=1, column=1, padx=5, pady=3)
 
-        # Mutation percentage row
-        mutation_str = ttk.Label(label_frame, text='Mutation chance [%]')
+        # Mutation or crossover percentage row
+        mutation_str = ttk.Label(label_frame, text='Mutation')
         mutation_str.grid(row=2, column=0, padx=5, pady=3)
-
-        self.mutation_percentage = tk.IntVar()
-        self.mutation_percentage.trace("w", lambda name, index,
-                                       mode, sv=self.mutation_percentage: self.callback(sv))
-        self.mutation_percentage.set(5)
-        mut_entry = ttk.Entry(
-            label_frame, textvariable=self.mutation_percentage, justify='right')
+        crossover_str = ttk.Label(label_frame, text='Crossover')
+        crossover_str.grid(row=2, column=2, padx=5, pady=3)
+        self.operation_percentage = tk.IntVar()
+        self.operation_percentage.trace("w", lambda name, index,
+                                                    mode, sv=self.operation_percentage: self.callback(sv))
+        self.operation_percentage.set(50)
+        mut_entry = ttk.Scale(
+            label_frame, variable=self.operation_percentage, orient='horizontal', from_=1,to=100)
         mut_entry.grid(row=2, column=1, padx=5, pady=3)
+        mut_entry2 = ttk.Entry(
+            label_frame, textvariable=self.operation_percentage, justify='right')
+        mut_entry2.grid(row=3, column=1, padx=5, pady=3)
 
         # Number of generations row
         generations_str = ttk.Label(label_frame, text='Number of generations')
-        generations_str.grid(row=3, column=0, padx=5, pady=3)
+        generations_str.grid(row=4, column=0, padx=5, pady=3)
 
         self.number_of_generations = tk.IntVar()
         self.number_of_generations.trace("w", lambda name, index,
@@ -115,16 +119,16 @@ class Parameters(tk.Frame):
         self.number_of_generations.set(100)
         num_of_gen_entry = ttk.Entry(
             label_frame, textvariable=self.number_of_generations, justify='right')
-        num_of_gen_entry.grid(row=3, column=1, padx=5, pady=3)
+        num_of_gen_entry.grid(row=4, column=1, padx=5, pady=3)
 
         # Mutation and Crossover frame
         mutation_frame = ttk.LabelFrame(
             label_frame, text="Mutation", width=100, height=50)
-        mutation_frame.grid(row=4, column=0, padx=5, pady=5)
+        mutation_frame.grid(row=5, column=0, padx=5, pady=5)
 
         crossover_frame = ttk.LabelFrame(
             label_frame, text="Crossover", width=100, height=50)
-        crossover_frame.grid(row=4, column=1, padx=5, pady=5)
+        crossover_frame.grid(row=5, column=1, padx=5, pady=5)
 
         # Mutation frame (swap, inversion, scramble)
         self.swap_mutation = tk.IntVar()
@@ -177,7 +181,7 @@ class Parameters(tk.Frame):
         # Selection Frame and buttons (Roulette, Ranking)
         selection_frame = ttk.LabelFrame(
             label_frame, text="Selection", width=100, height=50)
-        selection_frame.grid(row=5, column=0, padx=5, pady=5, columnspan=2)
+        selection_frame.grid(row=6, column=0, padx=5, pady=5, columnspan=2)
 
         self.selection = tk.StringVar()
         self.selection.trace("w", lambda name, index,
@@ -196,7 +200,7 @@ class Parameters(tk.Frame):
         s.configure('my.TButton', font=('Helvetica', 20))
         self.start = ttk.Button(label_frame, text="Start", style='my.TButton',
                                 command=self.start_algorithm)
-        self.start.grid(row=6, column=0, padx=5, pady=5, columnspan=2)
+        self.start.grid(row=7, column=0, padx=5, pady=5, columnspan=2)
 
         # Canvas
         self.canv = tk.Canvas(self, width=745, height=520,
@@ -294,6 +298,10 @@ class Parameters(tk.Frame):
             mut_probability = 1
         else:
             mut_probability = 0
+
+        if mut_probability == 1 and cross_probability == 1:
+            cross_probability = self.operation_percentage.get()
+            mut_probability = 100 - self.operation_percentage.get()
 
         if len(factory_list) > len(distance_matrix[0]):
             self.solution.insert(
