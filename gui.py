@@ -71,49 +71,9 @@ class Parameters(tk.Frame):
             self, text="Population parameters")
         label_frame.grid(row=1, column=0, padx=20, pady=5, columnspan=4)
 
-        # Population size row
-        pop_size_str = ttk.Label(label_frame, text='Population size')
-        pop_size_str.grid(row=0, column=0, padx=5, pady=3)
-
-        self.population_size = tk.IntVar()
-        self.population_size.trace("w", lambda name, index,
-                                   mode, sv=self.population_size: self.callback(sv))
-        self.population_size.set(20)
-        pop_entry = ttk.Entry(
-            label_frame, textvariable=self.population_size, justify='right')
-        pop_entry.grid(row=0, column=1, padx=5, pady=3)
-
-        # Parent percentage row
-        parent_str = ttk.Label(label_frame, text='Selection size [%]')
-        parent_str.grid(row=1, column=0, padx=5, pady=3)
-
-        self.selection_size = tk.IntVar()
-        self.selection_size.trace("w", lambda name, index,
-                                  mode, sv=self.selection_size: self.callback(sv))
-        self.selection_size.set(50)
-        par_entry = ttk.Entry(
-            label_frame, textvariable=self.selection_size, justify='right')
-        par_entry.grid(row=1, column=1, padx=5, pady=3)
-
-        # Mutation or crossover percentage row
-        mutation_str = ttk.Label(label_frame, text='Mutation')
-        mutation_str.grid(row=2, column=0, padx=5, pady=3)
-        crossover_str = ttk.Label(label_frame, text='Crossover')
-        crossover_str.grid(row=2, column=2, padx=5, pady=3)
-        self.operation_percentage = tk.IntVar()
-        self.operation_percentage.trace("w", lambda name, index,
-                                                    mode, sv=self.operation_percentage: self.callback(sv))
-        self.operation_percentage.set(50)
-        mut_entry = ttk.Scale(
-            label_frame, variable=self.operation_percentage, orient='horizontal', from_=1,to=100)
-        mut_entry.grid(row=2, column=1, padx=5, pady=3)
-        mut_entry2 = ttk.Entry(
-            label_frame, textvariable=self.operation_percentage, justify='right')
-        mut_entry2.grid(row=3, column=1, padx=5, pady=3)
-
         # Number of generations row
         generations_str = ttk.Label(label_frame, text='Number of generations')
-        generations_str.grid(row=4, column=0, padx=5, pady=3)
+        generations_str.grid(row=0, column=0, padx=5, pady=3)
 
         self.number_of_generations = tk.IntVar()
         self.number_of_generations.trace("w", lambda name, index,
@@ -121,7 +81,63 @@ class Parameters(tk.Frame):
         self.number_of_generations.set(100)
         num_of_gen_entry = ttk.Entry(
             label_frame, textvariable=self.number_of_generations, justify='right')
-        num_of_gen_entry.grid(row=4, column=1, padx=5, pady=3)
+        num_of_gen_entry.grid(row=0, column=1, padx=5, pady=3)
+
+        # Population size row
+        pop_size_str = ttk.Label(label_frame, text='Population size')
+        pop_size_str.grid(row=1, column=0, padx=5, pady=3)
+
+        self.population_size = tk.IntVar()
+        self.population_size.trace("w", lambda name, index,
+                                   mode, sv=self.population_size: self.callback(sv))
+        self.population_size.set(20)
+        pop_entry = ttk.Entry(
+            label_frame, textvariable=self.population_size, justify='right')
+        pop_entry.grid(row=1, column=1, padx=5, pady=3)
+
+        # Selection size row
+        parent_str = ttk.Label(label_frame, text='Selection size [%]')
+        parent_str.grid(row=2, column=0, padx=5, pady=3)
+
+        self.selection_size = tk.IntVar()
+        self.selection_size.trace("w", lambda name, index,
+                                  mode, sv=self.selection_size: self.callback(sv))
+        self.selection_size.set(50)
+        par_entry = ttk.Entry(
+            label_frame, textvariable=self.selection_size, justify='right')
+        par_entry.grid(row=2, column=1, padx=5, pady=3)
+
+        # Main parameters frame
+        crossover_mutation_frame = ttk.LabelFrame(
+            label_frame, text="Crossover/Mutation [%]")
+        crossover_mutation_frame.grid(
+            row=3, column=0, padx=20, pady=7, columnspan=2)
+
+        # Mutation or crossover percentage row
+        # Mutation
+        mutation_str = ttk.Label(crossover_mutation_frame, text='Mutation')
+        mutation_str.grid(row=0, column=0, padx=5, pady=3)
+        self.mutation_percentage = tk.IntVar()
+        self.mutation_percentage.trace("w", lambda name, index,
+                                       mode, sv=self.mutation_percentage: self.callback_mut(sv))
+        self.mutation_percentage.set(10)
+
+        mut_per_entry = ttk.Entry(
+            crossover_mutation_frame, textvariable=self.mutation_percentage, justify='right')
+        mut_per_entry.grid(row=0, column=1, padx=5, pady=3)
+
+        # Crossover
+        crossover_str = ttk.Label(crossover_mutation_frame, text='Crossover')
+        crossover_str.grid(row=1, column=0, padx=5, pady=3)
+
+        self.crossover_percentage = tk.IntVar()
+        self.crossover_percentage.trace("w", lambda name, index,
+                                        mode, sv=self.crossover_percentage: self.callback_cross(sv))
+        self.crossover_percentage.set(90)
+
+        cross_per_entry = ttk.Entry(
+            crossover_mutation_frame, textvariable=self.crossover_percentage, justify='right')
+        cross_per_entry.grid(row=1, column=1, padx=5, pady=3)
 
         # Mutation and Crossover frame
         mutation_frame = ttk.LabelFrame(
@@ -282,6 +298,14 @@ class Parameters(tk.Frame):
         """Return value of entered value"""
         return [sv._name, sv.get()]
 
+    def callback_mut(self, sv):
+        self.crossover_percentage.set(100 - self.mutation_percentage.get())
+        return [sv._name, sv.get()]
+
+    def callback_cross(self, sv):
+        self.mutation_percentage.set(100 - self.crossover_percentage.get())
+        return [sv._name, sv.get()]
+
     def start_algorithm(self):
         # graph_page
         graph_page = self.controller.get_page(FunctionFlowGraph)
@@ -300,20 +324,20 @@ class Parameters(tk.Frame):
         else:
             mut_probability = 0
 
-        if mut_probability == 1 and cross_probability == 1:
-            cross_probability = self.operation_percentage.get()
-            mut_probability = 100 - self.operation_percentage.get()
+        # if mut_probability == 1 and cross_probability == 1:
+        #     cross_probability = self.operation_percentage.get()
+        #     mut_probability = 100 - self.operation_percentage.get()
 
         if len(factory_list) > len(distance_matrix[0]):
             self.solution.insert(
                 'end', 'Number of parcels is smaller than', 'number of fabrics', 'ADD NEW PARCELS')
 
         best_individual, current_min_value, min_values_list = genetic_algorithm(distance_matrix, flow_matrix, factory_list, self.population_size.get(),
-                                     self.selection_size.get(), self.number_of_generations.get(), selection_type=self.selection.get(),
-                                     crossover_probability=cross_probability, mutation_probability=mut_probability,
-                                     pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
-                                     ox_probability=self.OX_crossover.get(), swap_probability=self.swap_mutation.get(),
-                                     inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get())
+                                                                                self.selection_size.get(), self.number_of_generations.get(), selection_type=self.selection.get(),
+                                                                                crossover_probability=self.crossover_percentage.get(), mutation_probability=self.mutation_percentage.get(),
+                                                                                pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
+                                                                                ox_probability=self.OX_crossover.get(), swap_probability=self.swap_mutation.get(),
+                                                                                inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get())
 
         # TODO: Enter dataframe with min values from algorithm
         files.clearing_csv('dataframe.csv')
@@ -380,17 +404,19 @@ flow = [[np.inf, 4, 2, 2, 3, 1],
         [1, 8, 4, 9, 2, np.inf]]
 
 flow_test = [[np.inf, 1000, 1, 1, 1, 1],
-        [1000, np.inf, 1000, 1, 1, 1],
-        [1, 1000, np.inf, 1000, 1, 1],
-        [1, 1, 1000, np.inf, 1000, 1],
-        [1, 1, 1, 1000, np.inf, 1000],
-        [1, 1, 1, 1, 1000, np.inf]]
+             [1000, np.inf, 1000, 1, 1, 1],
+             [1, 1000, np.inf, 1000, 1, 1],
+             [1, 1, 1000, np.inf, 1000, 1],
+             [1, 1, 1, 1000, np.inf, 1000],
+             [1, 1, 1, 1, 1000, np.inf]]
+
 distance_matrix_test = [[np.inf, 1, 1000, 1000, 1000, 1000],
-        [1, np.inf, 1, 1000, 1000, 1000],
-        [1000, 1, np.inf, 1, 1000, 1000],
-        [1000, 1000, 1, np.inf, 1, 1000],
-        [1000, 1000, 1000, 1, np.inf, 1],
-        [1000, 1000, 1000, 1000, 1, np.inf]]
+                        [1, np.inf, 1, 1000, 1000, 1000],
+                        [1000, 1, np.inf, 1, 1000, 1000],
+                        [1000, 1000, 1, np.inf, 1, 1000],
+                        [1000, 1000, 1000, 1, np.inf, 1],
+                        [1000, 1000, 1000, 1000, 1, np.inf]]
+
 distance_matrix_test = np.array(distance_matrix_test)
 flow_matrix = np.array(flow)
 
