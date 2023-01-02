@@ -56,7 +56,7 @@ def operative_function(solution: list, distance_matrix: np.array, flow_matrix: n
     return sum/2  # every distance and flow is added two times, so return divided by 2
 
 
-def create_fabric_list(parcels_number, factory_number):  # DONE
+def create_fabric_list(factory_number):  # DONE
     """
     Function creating list with number of each factories
     parcels_number = Amount of our available parcels
@@ -64,9 +64,11 @@ def create_fabric_list(parcels_number, factory_number):  # DONE
     Return:
         Basic list which assigns first factory to parcel etc.
     """
-    factory_list = [np.inf for i in range(parcels_number)]
+    #factory_list = [np.inf for i in range(parcels_number)]
+
+    factory_list = []
     for i in range(factory_number):
-        factory_list[i] = i
+        factory_list.append(i)
     return factory_list
 
 

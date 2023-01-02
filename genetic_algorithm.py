@@ -9,6 +9,9 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
     current_generation = 0
     fitness_table = []
     min_values_list = []
+    operand_type = []
+    crossover_type = []
+    mutation_type = []
     population = fun.generate_population(factory_list, population_size)
     for i in range(len(population)):
         fitness_table.append(fun.operative_function(
@@ -38,25 +41,30 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
                 par2_idx = np.random.randint(0, len(selected_population)-1)
                 cross_type = random.choices(list(fun.Crossover),
                                             weights=[cx_probability, pmx_probability, ox_probability])
+                operand_type.append('Crossover')
                 cross_type = cross_type[0]
                 children_1 = selected_population[par1_idx]
                 children_2 = selected_population[par2_idx]
                 if cross_type == fun.Crossover.pmx:
                     children_1, children_2 = fun.pmx(
                         selected_population[par1_idx], selected_population[par2_idx])
-
+                    crossover_type.append('PMX')
+                    mutation_type.append(np.NaN)
                 elif cross_type == fun.Crossover.cx:
                     children_1, children_2 = fun.cx(
                         selected_population[par1_idx], selected_population[par2_idx])
-
+                    crossover_type.append('CX')
+                    mutation_type.append(np.NaN)
                 elif cross_type == fun.Crossover.ox:
                     children_1, children_2 = fun.ox(
                         selected_population[par1_idx], selected_population[par2_idx])
-
+                    crossover_type.append('OX')
+                    mutation_type.append(np.NaN)
                 selected_population.append(children_1)
                 if len(selected_population) != len(population):
                     selected_population.append(children_2)
             elif genetic_operation == fun.Operations.mutation:
+                operand_type.append('mutation')
                 mutate_idx = np.random.randint(0, len(selected_population)-1)
                 mut_type = random.choices(list(fun.Mutations),
                                           weights=[swap_probability, scramble_probability, inversion_probability])
@@ -64,15 +72,21 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
                 if mut_type == fun.Mutations.swap:
                     children = fun.swap_mutation(
                         selected_population[mutate_idx])
+                    mutation_type.append('Swap')
+                    crossover_type.append(np.NaN)
                     selected_population[mutate_idx] = children
                 elif mut_type == fun.Mutations.inversion:
                     children = fun.inversion_mutation(
                         selected_population[mutate_idx])
                     selected_population[mutate_idx] = children
+                    mutation_type.append('Inversion')
+                    crossover_type.append(np.NaN)
                 elif mut_type == fun.Mutations.scramble:
                     children = fun.scramble_mutation(
                         selected_population[mutate_idx])
                     selected_population[mutate_idx] = children
+                    mutation_type.append('Scramble')
+                    crossover_type.append(np.NaN)
             else:
                 pass
 
@@ -90,7 +104,7 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
         population = selected_population
         current_generation += 1
         min_values_list.append(current_min_value)
-    return best_individual, current_min_value, min_values_list
+    return best_individual, current_min_value, min_values_list,operand_type,crossover_type,mutation_type
 
 
 def main():

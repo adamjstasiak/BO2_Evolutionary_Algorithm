@@ -11,6 +11,7 @@ import pandas as pd
 from copy import copy
 
 
+
 class tkinterApp(tk.Tk):
 
     # __init__ function for class tkinterApp
@@ -311,7 +312,7 @@ class Parameters(tk.Frame):
         graph_page = self.controller.get_page(FunctionFlowGraph)
         distance_matrix = self.distance_matrix_from_points()
         # TODO: Make factory list by size from other file (txt, csv, xls)
-        factory_list = fun.create_fabric_list(6, 6)
+        factory_list = fun.create_fabric_list(6)
 
         cross_probability = 1
         if self.PMX_crossover.get() == 1 or self.OX_crossover.get() == 1 or self.CX_crossover.get() == 1:
@@ -332,7 +333,7 @@ class Parameters(tk.Frame):
             self.solution.insert(
                 'end', 'Number of parcels is smaller than', 'number of fabrics', 'ADD NEW PARCELS')
 
-        best_individual, current_min_value, min_values_list = genetic_algorithm(distance_matrix, flow_matrix, factory_list, self.population_size.get(),
+        best_individual, current_min_value, min_values_list,operand_type,crossover_type,mutation_type = genetic_algorithm(distance_matrix, flow_matrix, factory_list, self.population_size.get(),
                                                                                 self.selection_size.get(), self.number_of_generations.get(), selection_type=self.selection.get(),
                                                                                 crossover_probability=self.crossover_percentage.get(), mutation_probability=self.mutation_percentage.get(),
                                                                                 pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
@@ -340,8 +341,11 @@ class Parameters(tk.Frame):
                                                                                 inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get())
 
         # TODO: Enter dataframe with min values from algorithm
+        data = [operand_type,crossover_type,mutation_type]
         files.clearing_csv('dataframe.csv')
-        files.export_to_csv(min_values_list, 'dataframe.csv')
+        files.clearing_csv('genetics_operation.csv')
+        files.export_to_csv_values(min_values_list, 'dataframe.csv')
+        files.export_to_csv_characteristics(data,'genetics_operation.csv')
         # TODO: Change setting default value to max parcels (equal to factories list size)
         graph_page.plot_dataframe(graph_page.canvas, graph_page.ax)  # df
 
@@ -388,13 +392,9 @@ class FunctionFlowGraph(tk.Frame):
         ax.clear()         # clear axes from previous plot
         df = pd.read_csv(r'dataframe.csv')
         ax.plot(df.index, df.value)
+
         canvas.draw()
 
-
-# df = {'year': [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2005, 2010],
-#       'unemployment_rate': [9.8, 12, 8, 7.2, 6.9, 7, 6.5, 6.2, 5.5, 6.3, 6.1]
-#       }
-# df = pd.DataFrame(df)
 
 flow = [[np.inf, 4, 2, 2, 3, 1],
         [4, np.inf, 3, 5, 5, 8],
