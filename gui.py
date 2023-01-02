@@ -6,6 +6,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 from genetic_algorithm import genetic_algorithm
 import function as fun
+import files
+import pandas as pd
 from copy import copy
 
 
@@ -306,7 +308,7 @@ class Parameters(tk.Frame):
             self.solution.insert(
                 'end', 'Number of parcels is smaller than', 'number of fabrics', 'ADD NEW PARCELS')
 
-        solution = genetic_algorithm(distance_matrix, flow_matrix, factory_list, self.population_size.get(),
+        best_individual, current_min_value, min_values_list = genetic_algorithm(distance_matrix, flow_matrix, factory_list, self.population_size.get(),
                                      self.selection_size.get(), self.number_of_generations.get(), selection_type=self.selection.get(),
                                      crossover_probability=cross_probability, mutation_probability=mut_probability,
                                      pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
@@ -314,16 +316,18 @@ class Parameters(tk.Frame):
                                      inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get())
 
         # TODO: Enter dataframe with min values from algorithm
+        files.clearing_csv('dataframe.csv')
+        files.export_to_csv(min_values_list, 'dataframe.csv')
         # TODO: Change setting default value to max parcels (equal to factories list size)
-        graph_page.plot_dataframe(graph_page.canvas, graph_page.ax, df)  # df
+        graph_page.plot_dataframe(graph_page.canvas, graph_page.ax)  # df
 
-        self.paint_factories(solution[0])
+        self.paint_factories(best_individual)
 
         if self.solution.size() > 4:
             self.solution.delete(0)
         if len(self.parcel_distances) > 1:
             self.solution.insert('end', 'Solution: %s' % str(
-                str(solution[0]) + '  sum: ' + str(solution[1])))
+                str(best_individual) + '  sum: ' + str(current_min_value)))
         else:
             self.solution.insert('end', 'Input at least two points')
 
@@ -356,16 +360,17 @@ class FunctionFlowGraph(tk.Frame):
         self.canvas.draw()
 
     # TODO: change to get dataframe from other file
-    def plot_dataframe(self, canvas, ax, df):
+    def plot_dataframe(self, canvas, ax):
         ax.clear()         # clear axes from previous plot
-        ax.plot(df.year, df.unemployment_rate)
+        df = pd.read_csv(r'dataframe.csv')
+        ax.plot(df.index, df.value)
         canvas.draw()
 
 
-df = {'year': [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2005, 2010],
-      'unemployment_rate': [9.8, 12, 8, 7.2, 6.9, 7, 6.5, 6.2, 5.5, 6.3, 6.1]
-      }
-df = pd.DataFrame(df)
+# df = {'year': [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2005, 2010],
+#       'unemployment_rate': [9.8, 12, 8, 7.2, 6.9, 7, 6.5, 6.2, 5.5, 6.3, 6.1]
+#       }
+# df = pd.DataFrame(df)
 
 flow = [[np.inf, 4, 2, 2, 3, 1],
         [4, np.inf, 3, 5, 5, 8],
@@ -374,12 +379,12 @@ flow = [[np.inf, 4, 2, 2, 3, 1],
         [3, 5, 6, 7, np.inf, 2],
         [1, 8, 4, 9, 2, np.inf]]
 
-flow_test = [[np.inf, 1000, 2, 2, 3, 1],
-        [1000, np.inf, 1000, 5, 5, 8],
-        [2, 1000, np.inf, 1000, 6, 4],
-        [2, 5, 1000, np.inf, 1000, 9],
-        [3, 5, 6, 1000, np.inf, 1000],
-        [1, 8, 4, 9, 1000, np.inf]]
+flow_test = [[np.inf, 1000, 1, 1, 1, 1],
+        [1000, np.inf, 1000, 1, 1, 1],
+        [1, 1000, np.inf, 1000, 1, 1],
+        [1, 1, 1000, np.inf, 1000, 1],
+        [1, 1, 1, 1000, np.inf, 1000],
+        [1, 1, 1, 1, 1000, np.inf]]
 distance_matrix_test = [[np.inf, 1, 1000, 1000, 1000, 1000],
         [1, np.inf, 1, 1000, 1000, 1000],
         [1000, 1, np.inf, 1, 1000, 1000],

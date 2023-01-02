@@ -8,6 +8,7 @@ from copy import copy
 def genetic_algorithm(distance, flow, factory_list, population_size, selection_size, number_of_generation, selection_type='ranking', crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1, ox_probability=1, swap_probability=1, inversion_probability=1, scramble_probability=1, min_value=-np.inf):
     current_generation = 0
     fitness_table = []
+    min_values_list = []
     population = fun.generate_population(factory_list, population_size)
     for i in range(len(population)):
         fitness_table.append(fun.operative_function(
@@ -15,10 +16,11 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
     current_min_value = min(fitness_table)
     best_individual_idx = fitness_table.index(current_min_value)
     best_individual = population[best_individual_idx]
-    print(best_individual, current_min_value)
+#    print(best_individual, current_min_value)
+    min_values_list.append(current_min_value)
     if current_min_value <= min_value:
-        return best_individual, current_min_value
-    while current_generation <= number_of_generation:
+        return best_individual, current_min_value, min_values_list
+    while current_generation < number_of_generation:
         fitness_table_for_current_population = []
         selected_population = population
         if selection_type == 'roulette':
@@ -87,7 +89,8 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
                 break
         population = selected_population
         current_generation += 1
-    return best_individual, current_min_value
+        min_values_list.append(current_min_value)
+    return best_individual, current_min_value, min_values_list
 
 
 def main():
@@ -111,8 +114,8 @@ def main():
     factory_number = 6
     fac_list = fun.create_fabric_list(parcels_number, factory_number)
     # fac_list = [2, 3, 4, 5, 0, 1]
-    solution, value = genetic_algorithm(
-        dist_matrix, flow_matrix, fac_list, 50, 30, 100, crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1, ox_probability=1,
+    solution, value, list = genetic_algorithm(
+        dist_matrix, flow_matrix, fac_list, 50, 30, 4, crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1, ox_probability=1,
         swap_probability=1, inversion_probability=1, scramble_probability=1)
     # print(fac_list, fun.operative_function(
     #     fac_list, dist_matrix, flow_matrix), '   - wartosc poczatkowa')
