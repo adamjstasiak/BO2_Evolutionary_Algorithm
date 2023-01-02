@@ -106,6 +106,7 @@ def selection(population, distance, flow, selection_size):  # DONE
     selected_population = []
     fitness_table = []
     sum_p = 0
+    selection_size = int(len(population)*selection_size/100)
     for i in range(len(population)):
         sum_p += operative_function(population[i], distance, flow)
     for i in range(len(population)):
@@ -130,6 +131,7 @@ def selection(population, distance, flow, selection_size):  # DONE
 
 
 def ranking_selection(population, distance, flow, selection_size):
+    selection_size = int(len(population)*selection_size/100)
     fit_dict = {operative_function(
         el, distance, flow): el for el in population}
     order_dict = sorted(fit_dict.items())

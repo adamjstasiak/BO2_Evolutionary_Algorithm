@@ -284,7 +284,6 @@ class Parameters(tk.Frame):
         # graph_page
         graph_page = self.controller.get_page(FunctionFlowGraph)
         distance_matrix = self.distance_matrix_from_points()
-
         # TODO: Make factory list by size from other file (txt, csv, xls)
         factory_list = fun.create_fabric_list(6, 6)
 
@@ -374,6 +373,20 @@ flow = [[np.inf, 4, 2, 2, 3, 1],
         [2, 5, 9, np.inf, 7, 9],
         [3, 5, 6, 7, np.inf, 2],
         [1, 8, 4, 9, 2, np.inf]]
+
+flow_test = [[np.inf, 1000, 2, 2, 3, 1],
+        [1000, np.inf, 1000, 5, 5, 8],
+        [2, 1000, np.inf, 1000, 6, 4],
+        [2, 5, 1000, np.inf, 1000, 9],
+        [3, 5, 6, 1000, np.inf, 1000],
+        [1, 8, 4, 9, 1000, np.inf]]
+distance_matrix_test = [[np.inf, 1, 1000, 1000, 1000, 1000],
+        [1, np.inf, 1, 1000, 1000, 1000],
+        [1000, 1, np.inf, 1, 1000, 1000],
+        [1000, 1000, 1, np.inf, 1, 1000],
+        [1000, 1000, 1000, 1, np.inf, 1],
+        [1000, 1000, 1000, 1000, 1, np.inf]]
+distance_matrix_test = np.array(distance_matrix_test)
 flow_matrix = np.array(flow)
 
 
