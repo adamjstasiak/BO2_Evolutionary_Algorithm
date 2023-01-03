@@ -11,7 +11,6 @@ import pandas as pd
 from copy import copy
 
 
-
 class tkinterApp(tk.Tk):
 
     # __init__ function for class tkinterApp
@@ -233,23 +232,32 @@ class Parameters(tk.Frame):
             self, text="Parcels")
         parcel_frame.grid(row=2, column=0, padx=5, pady=5, columnspan=4)
 
-        # additional, not necessary - number of parcels can be bigger than fabrics
-        pop_size_str = ttk.Label(parcel_frame, text='Max number of parcels')
+        # Number of parcels
+        pop_size_str = ttk.Label(parcel_frame, text='Number of parcels:')
         pop_size_str.grid(row=0, column=0, padx=5,
                           pady=3, sticky='E')
 
-        self.number_of_parcels = tk.IntVar()
-        self.number_of_parcels.trace("w", lambda name, index,
-                                     mode, sv=self.number_of_parcels: self.callback(sv))
-        self.number_of_parcels.set(6)
-        parcels_entry = ttk.Entry(
-            parcel_frame, textvariable=self.number_of_parcels, justify='right')
-        parcels_entry.grid(row=0, column=1, padx=5, pady=3, sticky='W')
+        display_num_of_parcels = ttk.Label(parcel_frame, text="")
+        display_num_of_parcels.grid(row=0, column=1, padx=5, pady=3)
+        display_num_of_parcels.configure(text="%d" % len(flow_matrix))
+
+        # Parcels type
+        self.parcel_type = tk.StringVar()
+        self.parcel_type.trace("w", lambda name, index,
+                               mode, sv=self.parcel_type: self.callback(sv))
+        self.parcel_type.set('file')
+        file_parcels = ttk.Radiobutton(
+            parcel_frame, text='From file', variable=self.parcel_type, value='file')
+        file_parcels.grid(row=1, column=0, padx=5, pady=2)
+
+        canvas_parcels = ttk.Radiobutton(
+            parcel_frame, text='From canvas', variable=self.parcel_type, value='canvas')
+        canvas_parcels.grid(row=1, column=1, padx=5, pady=2)
 
         # Reset
         self.reset = ttk.Button(parcel_frame, text="reset", style='my.TButton',
                                 command=self.reset_canvas)
-        self.reset.grid(row=1, column=0, padx=5, pady=10, columnspan=3)
+        self.reset.grid(row=2, column=0, padx=5, pady=10, columnspan=3)
 
         # Write solution
         self.solution = tk.Listbox(self, height=5, width=46)
@@ -275,8 +283,15 @@ class Parameters(tk.Frame):
         self.solution.delete(0, tk.END)
         self.increment = 0
 
+    def reset_canvas_when_file(self):
+        self.canv.delete('all')
+        self.parcel_distances.clear()
+        self.increment = 0
+
     def paint_parcels(self, event):
-        if self.increment < self.number_of_parcels.get():
+        # TODO:
+        # if self.increment < self.number_of_parcels.get():
+        if self.increment < len(flow_matrix):
             self.parcel_distances.append([event.x, event.y])
             x1, y1 = (event.x - 12), (event.y - 12)
             x2, y2 = (event.x + 12), (event.y + 12)
@@ -310,9 +325,15 @@ class Parameters(tk.Frame):
     def start_algorithm(self):
         # graph_page
         graph_page = self.controller.get_page(FunctionFlowGraph)
-        distance_matrix = self.distance_matrix_from_points()
+
         # TODO: Make factory list by size from other file (txt, csv, xls)
-        factory_list = fun.create_fabric_list(6)
+        factory_list = fun.create_fabric_list(len(flow_matrix))
+
+        if self.parcel_type.get() == 'file':
+            distance_matrix = files.import_flow_matrix('distance_matrix.xlsx')
+            self.reset_canvas_when_file()
+        elif self.parcel_type.get() == 'canvas':
+            distance_matrix = self.distance_matrix_from_points()
 
         cross_probability = 1
         if self.PMX_crossover.get() == 1 or self.OX_crossover.get() == 1 or self.CX_crossover.get() == 1:
@@ -325,27 +346,24 @@ class Parameters(tk.Frame):
         else:
             mut_probability = 0
 
-        # if mut_probability == 1 and cross_probability == 1:
-        #     cross_probability = self.operation_percentage.get()
-        #     mut_probability = 100 - self.operation_percentage.get()
-
-        if len(factory_list) > len(distance_matrix[0]):
+        if len(factory_list) > len(distance_matrix):
+            self.solution.delete(0, tk.END)
             self.solution.insert(
                 'end', 'Number of parcels is smaller than', 'number of fabrics', 'ADD NEW PARCELS')
 
-        best_individual, current_min_value, min_values_list,operand_type,crossover_type,mutation_type = genetic_algorithm(distance_matrix, flow_matrix, factory_list, self.population_size.get(),
-                                                                                self.selection_size.get(), self.number_of_generations.get(), selection_type=self.selection.get(),
-                                                                                crossover_probability=self.crossover_percentage.get(), mutation_probability=self.mutation_percentage.get(),
-                                                                                pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
-                                                                                ox_probability=self.OX_crossover.get(), swap_probability=self.swap_mutation.get(),
-                                                                                inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get())
+        best_individual, current_min_value, min_values_list, operand_type, crossover_type, mutation_type = genetic_algorithm(distance_matrix, flow_matrix, factory_list, self.population_size.get(),
+                                                                                                                             self.selection_size.get(), self.number_of_generations.get(), selection_type=self.selection.get(),
+                                                                                                                             crossover_probability=self.crossover_percentage.get(), mutation_probability=self.mutation_percentage.get(),
+                                                                                                                             pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
+                                                                                                                             ox_probability=self.OX_crossover.get(), swap_probability=self.swap_mutation.get(),
+                                                                                                                             inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get())
 
         # TODO: Enter dataframe with min values from algorithm
-        data = [operand_type,crossover_type,mutation_type]
+        data = [operand_type, crossover_type, mutation_type]
         files.clearing_csv('dataframe.csv')
         files.clearing_csv('genetics_operation.csv')
         files.export_to_csv_values(min_values_list, 'dataframe.csv')
-        files.export_to_csv_characteristics(data,'genetics_operation.csv')
+        files.export_to_csv_characteristics(data, 'genetics_operation.csv')
         # TODO: Change setting default value to max parcels (equal to factories list size)
         graph_page.plot_dataframe(graph_page.canvas, graph_page.ax)  # df
 
@@ -353,11 +371,10 @@ class Parameters(tk.Frame):
 
         if self.solution.size() > 4:
             self.solution.delete(0)
-        if len(self.parcel_distances) > 1:
+
+        if len(distance_matrix) == len(flow_matrix):
             self.solution.insert('end', 'Solution: %s' % str(
                 str(best_individual) + '  sum: ' + str(current_min_value)))
-        else:
-            self.solution.insert('end', 'Input at least two points')
 
 
 # second window frame FunctionFlowGraph
@@ -396,12 +413,12 @@ class FunctionFlowGraph(tk.Frame):
         canvas.draw()
 
 
-flow = [[np.inf, 4, 2, 2, 3, 1],
-        [4, np.inf, 3, 5, 5, 8],
-        [2, 3, np.inf, 9, 6, 4],
-        [2, 5, 9, np.inf, 7, 9],
-        [3, 5, 6, 7, np.inf, 2],
-        [1, 8, 4, 9, 2, np.inf]]
+# flow = [[np.inf, 4, 2, 2, 3, 1],
+#         [4, np.inf, 3, 5, 5, 8],
+#         [2, 3, np.inf, 9, 6, 4],
+#         [2, 5, 9, np.inf, 7, 9],
+#         [3, 5, 6, 7, np.inf, 2],
+#         [1, 8, 4, 9, 2, np.inf]]
 
 flow_test = [[np.inf, 1000, 1, 1, 1, 1],
              [1000, np.inf, 1000, 1, 1, 1],
@@ -418,7 +435,9 @@ distance_matrix_test = [[np.inf, 1, 1000, 1000, 1000, 1000],
                         [1000, 1000, 1000, 1000, 1, np.inf]]
 
 distance_matrix_test = np.array(distance_matrix_test)
-flow_matrix = np.array(flow)
+
+flow_matrix = files.import_flow_matrix('flow_matrix.xlsx')
+# flow_matrix = np.array(flow)
 
 
 def main():

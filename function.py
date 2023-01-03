@@ -40,7 +40,7 @@ def operative_function(solution: list, distance_matrix: np.array, flow_matrix: n
     Return:
         Total value of operative function
     """
-    if len(solution) > len(distance_matrix[0]):
+    if len(solution) > len(distance_matrix):
         raise ValueError("Length of solution is bigger than number of parcels")
     else:
         sum = 0
