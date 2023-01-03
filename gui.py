@@ -178,7 +178,7 @@ class Parameters(tk.Frame):
         self.inverse_mutation = tk.IntVar()
         self.inverse_mutation.trace("w", lambda name, index,
                                     mode, sv=self.inverse_mutation: self.callback(sv))
-        inverse_mutation_button = ttk.Checkbutton(mutation_frame, text='Inverse',
+        inverse_mutation_button = ttk.Checkbutton(mutation_frame, text='Scramble',
                                                   variable=self.inverse_mutation)
         inverse_mutation_button.grid(
             row=1, column=0, padx=5, pady=2, sticky='w')
@@ -186,7 +186,7 @@ class Parameters(tk.Frame):
         self.scramble_mutation = tk.IntVar()
         self.scramble_mutation.trace("w", lambda name, index,
                                      mode, sv=self.scramble_mutation: self.callback(sv))
-        scramble_mutation_button = ttk.Checkbutton(mutation_frame, text='Scramble',
+        scramble_mutation_button = ttk.Checkbutton(mutation_frame, text='Inverse',
                                                    variable=self.scramble_mutation)
         scramble_mutation_button.grid(
             row=3, column=0, padx=5, pady=2, sticky='w')
@@ -196,7 +196,7 @@ class Parameters(tk.Frame):
         self.PMX_crossover.trace("w", lambda name, index,
                                  mode, sv=self.PMX_crossover: self.callback(sv))
         self.PMX_crossover.set(1)
-        PMX_crossover_button = ttk.Checkbutton(crossover_frame, text='PMX',
+        PMX_crossover_button = ttk.Checkbutton(crossover_frame, text='CX',
                                                variable=self.PMX_crossover)
         PMX_crossover_button.grid(row=0, column=0, padx=5, pady=2, sticky='w')
 
@@ -210,7 +210,7 @@ class Parameters(tk.Frame):
         self.CX_crossover = tk.IntVar()
         self.CX_crossover.trace("w", lambda name, index,
                                 mode, sv=self.CX_crossover: self.callback(sv))
-        CX_crossover_button = ttk.Checkbutton(crossover_frame, text='CX',
+        CX_crossover_button = ttk.Checkbutton(crossover_frame, text='PMX',
                                               variable=self.CX_crossover)
         CX_crossover_button.grid(row=3, column=0, padx=5, pady=2, sticky='w')
 
@@ -378,12 +378,17 @@ class Parameters(tk.Frame):
             self.solution.insert(
                 'end', 'Number of parcels is smaller than', 'number of fabrics', 'ADD NEW PARCELS')
 
+        # print('PMX: ', self.PMX_crossover.get())
+        # print('OX: ', self.OX_crossover.get())
+        # print('CX: ', self.CX_crossover.get())
+        # print('--------------')
+
         best_individual, current_min_value, min_values_list, operand_type, crossover_type, mutation_type = genetic_algorithm(distance_matrix, flow_matrix, factory_list, self.population_size.get(),
                                                                                                                              self.selection_size.get(), self.number_of_generations.get(), selection_type=self.selection.get(),
                                                                                                                              crossover_probability=self.crossover_percentage.get(), mutation_probability=self.mutation_percentage.get(),
                                                                                                                              pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
                                                                                                                              ox_probability=self.OX_crossover.get(), swap_probability=self.swap_mutation.get(),
-                                                                                                                             inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get(),stop_count=self.stop_count.get())
+                                                                                                                             inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get(), stop_count=self.stop_count.get())
 
         # TODO: Enter dataframe with min values from algorithm
         data = [operand_type, crossover_type, mutation_type]
