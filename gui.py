@@ -242,7 +242,7 @@ class Parameters(tk.Frame):
         self.canv = tk.Canvas(self, width=745, height=520,
                               background='pink', borderwidth=10)
         self.canv.grid(row=1, column=4, padx=5,
-                       pady=5, rowspan=3, columnspan=2)
+                       pady=5, rowspan=2, columnspan=2)
         self.canv.bind("<ButtonPress-1>", self.paint_parcels)
 
         # Parcels frame
@@ -278,8 +278,8 @@ class Parameters(tk.Frame):
         self.reset.grid(row=2, column=0, padx=5, pady=10, columnspan=3)
 
         # Write solution
-        self.solution = tk.Listbox(self, height=5, width=46)
-        self.solution.grid(column=0, row=3, padx=20, pady=10, columnspan=3)
+        self.solution = tk.Listbox(self, height=5, width=170)
+        self.solution.grid(column=0, row=3, padx=20, pady=10, columnspan=4000)
 
         self.parcel_distances = []
         self.increment = 0
@@ -398,7 +398,8 @@ class Parameters(tk.Frame):
         files.export_to_csv_characteristics(data, 'genetics_operation.csv')
         # TODO: Change setting default value to max parcels (equal to factories list size)
 
-        graph_page.plot_dataframe(graph_page.canvas, graph_page.ax1,graph_page.ax2,graph_page.ax3,graph_page.ax4)  # df
+        graph_page.plot_dataframe(graph_page.canvas, graph_page.ax1,
+                                  graph_page.ax2, graph_page.ax3, graph_page.ax4)  # df
 
         self.paint_factories(best_individual)
 
@@ -443,34 +444,36 @@ class FunctionFlowGraph(tk.Frame):
 
         # Space for graph
         figure = plt.Figure(figsize=(12, 6), dpi=100)
-        ax1 = figure.add_subplot(2,3,1)
-        ax2 = figure.add_subplot(2,3,2)
-        ax3 = figure.add_subplot(2,3,3)
-        ax4 = figure.add_subplot(2,1,2)
+        ax1 = figure.add_subplot(2, 3, 1)
+        ax2 = figure.add_subplot(2, 3, 2)
+        ax3 = figure.add_subplot(2, 3, 3)
+        ax4 = figure.add_subplot(2, 1, 2)
         self.ax1 = figure.add_axes(ax1)
         self.ax2 = figure.add_axes(ax2)
         self.ax3 = figure.add_axes(ax3)
         self.ax4 = figure.add_axes(ax4)
         self.canvas = FigureCanvasTkAgg(figure, self.plot_frame)
-        
+
         self.canvas.get_tk_widget().grid()
         self.canvas.draw()
 
-    def plot_dataframe(self, canvas,ax1,ax2,ax3,ax4):
-        ax1.clear() 
-        ax2.clear() 
-        ax3.clear() 
+    def plot_dataframe(self, canvas, ax1, ax2, ax3, ax4):
+        ax1.clear()
+        ax2.clear()
+        ax3.clear()
         ax4.clear()         # clear axes from previous plot
         df = pd.read_csv(r'dataframe.csv')
         ax4.plot(df.index, df.value)
-        ax4.set_title("Algorithm Flow",fontsize=10)
+        ax4.set_title("Algorithm Flow", fontsize=10)
         ax4.grid()
-        crossover_amount,mutation_amount,cx_amount,ox_amount,pmx_amount,inversion_amount,scramble_amount,swap_amount = files.genetetic_operation_analisys('genetics_operation.csv')
-        ax1.bar(['Crossover','Mutation'],[crossover_amount,mutation_amount])
+        crossover_amount, mutation_amount, cx_amount, ox_amount, pmx_amount, inversion_amount, scramble_amount, swap_amount = files.genetetic_operation_analisys(
+            'genetics_operation.csv')
+        ax1.bar(['Crossover', 'Mutation'], [crossover_amount, mutation_amount])
         ax1.set_title("Genetics operand")
-        ax2.bar(['CX','OX','PMX'],[cx_amount,ox_amount,pmx_amount])
+        ax2.bar(['CX', 'OX', 'PMX'], [cx_amount, ox_amount, pmx_amount])
         ax2.set_title("Crossover type")
-        ax3.bar(['Swap','Scramble','Inversion'],[swap_amount,scramble_amount,inversion_amount])
+        ax3.bar(['Swap', 'Scramble', 'Inversion'], [
+                swap_amount, scramble_amount, inversion_amount])
         ax3.set_title("Mutation type")
         canvas.draw()
 
