@@ -356,7 +356,7 @@ class Parameters(tk.Frame):
     def paint_parcels(self, event):
         # TODO:
         # if self.increment < self.number_of_parcels.get():
-        if self.increment < len(self.flow_matrix):
+        if self.increment < self.parcel_size.get():
             self.parcel_distances.append([event.x, event.y])
             x1, y1 = (event.x - 12), (event.y - 12)
             x2, y2 = (event.x + 12), (event.y + 12)
