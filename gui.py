@@ -383,7 +383,7 @@ class Parameters(tk.Frame):
                                                                                                                              crossover_probability=self.crossover_percentage.get(), mutation_probability=self.mutation_percentage.get(),
                                                                                                                              pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
                                                                                                                              ox_probability=self.OX_crossover.get(), swap_probability=self.swap_mutation.get(),
-                                                                                                                             inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get())
+                                                                                                                             inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get(),stop_count=self.stop_count.get())
 
         # TODO: Enter dataframe with min values from algorithm
         data = [operand_type, crossover_type, mutation_type]

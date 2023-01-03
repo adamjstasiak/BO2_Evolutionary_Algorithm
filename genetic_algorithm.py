@@ -5,13 +5,14 @@ import numpy as np
 from copy import copy
 
 
-def genetic_algorithm(distance, flow, factory_list, population_size, selection_size, number_of_generation, selection_type='ranking', crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1, ox_probability=1, swap_probability=1, inversion_probability=1, scramble_probability=1, min_value=-np.inf):
+def genetic_algorithm(distance, flow, factory_list, population_size, selection_size, number_of_generation, selection_type='ranking', crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1, ox_probability=1, swap_probability=1, inversion_probability=1, scramble_probability=1, stop_count=80):
     current_generation = 0
     fitness_table = []
     min_values_list = []
     operand_type = []
     crossover_type = []
     mutation_type = []
+    counter = 0
     population = fun.generate_population(factory_list, population_size)
     for i in range(len(population)):
         fitness_table.append(fun.operative_function(
@@ -21,8 +22,8 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
     best_individual = population[best_individual_idx]
 #    print(best_individual, current_min_value)
     min_values_list.append(current_min_value)
-    if current_min_value <= min_value:
-        return best_individual, current_min_value, min_values_list
+    # if current_min_value <= min_value:
+    #     return best_individual, current_min_value, min_values_list
     while current_generation < number_of_generation:
         fitness_table_for_current_population = []
         selected_population = population
@@ -94,13 +95,16 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
             fitness_table_for_current_population.append(
                 fun.operative_function(selected_population[i], distance, flow))
         max_selected = min(fitness_table_for_current_population)
+        if max_selected == current_min_value:
+            counter += 1
         if max_selected < current_min_value:
+            counter = 0
             current_min_value = max_selected
             idx_selected = fitness_table_for_current_population.index(
                 current_min_value)
             best_individual = selected_population[idx_selected]
-            if current_min_value <= min_value:
-                break
+        if counter == stop_count:
+            break
         population = selected_population
         current_generation += 1
         min_values_list.append(current_min_value)

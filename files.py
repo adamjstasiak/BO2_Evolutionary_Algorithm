@@ -36,3 +36,19 @@ def export_to_csv_characteristics(data,filename):
 def clearing_csv(filename):
     f = open(filename, 'w+')
     f.close()
+
+
+def genetetic_operation_analisys(path):
+    df = pd.read_csv(path)
+    count_crossover = df.groupby('Operand type').count()
+    count_cross = df.groupby('Crossover').count()
+    count_mutation = df.groupby('Mutation').count()
+    crossover_amount = count_crossover['Crossover'][0]
+    mutation_amount = count_crossover['Mutation'][1]
+    cx_amount = count_cross['Operand type'][0]
+    ox_amount = count_cross['Operand type'][1]
+    pmx_amount = count_cross['Operand type'][2]
+    inversion_amount = count_mutation['Operand type'][0]
+    scramble_amount = count_mutation['Operand type'][1]
+    swap_amount = count_mutation['Operand type'][2]
+    return crossover_amount,mutation_amount,cx_amount,ox_amount,pmx_amount,inversion_amount,scramble_amount,swap_amount
