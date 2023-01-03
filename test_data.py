@@ -19,28 +19,48 @@ flow = [[np.inf, 4, 2, 2, 3, 1],
 
 
 df = pd.read_csv('genetics_operation.csv')
-print(df)
+# print(df)
 count_crossover = df.groupby('Operand type').count()
 
+count_col = count_crossover.columns
+
+print(count_col)
+print(len(count_col))
 count_cross = df.groupby('Crossover').count()
 count_mutation = df.groupby('Mutation').count()
-print(count_crossover)
-print(count_cross)
-print(count_mutation)
+# print(count_crossover)
+# print(count_cross)
+# print(count_mutation)
 
 
+idx_mut = count_mutation.index
+print(idx_mut)
+
+dfcount = df.count()
+
+# print(dfcount)
 def genetetic_operation_analisys(path):
      df = pd.read_csv(path)
-     count_crossover = df.groupby('Operand type').count()
+     count_operand = df.groupby('Operand type').count()
      count_cross = df.groupby('Crossover').count()
      count_mutation = df.groupby('Mutation').count()
-     crossover_amount = count_crossover['Crossover'][0]
-     mutation_amount = count_crossover['Mutation'][1]
-     cx_amount = count_cross['Operand type'][0]
-     ox_amount = count_cross['Operand type'][1]
-     pmx_amount = count_cross['Operand type'][2]
-     inversion_amount = count_mutation['Operand type'][0]
-     scramble_amount = count_mutation['Operand type'][1]
-     swap_amount = count_mutation['Operand type'][2]
+     crossover_amount = count_operand['Crossover'][0]
+     mutation_amount = count_operand['Mutation'][1]
+     idx_mut = count_mutation.index
+     idx_cross = count_crossover.index
+     for i in range(len(idx_cross)):
+        if idx_cross[i] == 'CX':
+             cx_amount = count_cross['Operand type'][i]
+        if idx_cross[i] == 'OX':
+             ox_amount = count_cross['Operand type'][i]
+        if idx_cross[i] == 'PMX':
+             pmx_amount = count_cross['Operand type'][i]    
+     for i in range(len(idx_mut)):
+        if idx_mut[i] == 'Scramble':
+             scramble_amount = count_mutation['Operand type'][i] 
+        if idx_mut[i] == 'Inversion':
+             inversion_amount = count_mutation['Operand type'][i]
+        if idx_mut[i] == 'Swap':
+             swap_amount = count_mutation['Operand type'][i]
      return crossover_amount,mutation_amount,cx_amount,ox_amount,pmx_amount,inversion_amount,scramble_amount,swap_amount
 

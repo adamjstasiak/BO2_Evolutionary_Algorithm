@@ -398,7 +398,7 @@ class Parameters(tk.Frame):
         files.export_to_csv_characteristics(data, 'genetics_operation.csv')
         # TODO: Change setting default value to max parcels (equal to factories list size)
 
-        graph_page.plot_dataframe(graph_page.canvas, graph_page.ax)  # df
+        graph_page.plot_dataframe(graph_page.canvas, graph_page.ax1,graph_page.ax2,graph_page.ax3,graph_page.ax4)  # df
 
         self.paint_factories(best_individual)
 
@@ -442,16 +442,36 @@ class FunctionFlowGraph(tk.Frame):
         self.plot_frame.grid(row=1, column=0, padx=5, pady=5, columnspan=2000)
 
         # Space for graph
-        figure = plt.Figure(figsize=(11, 6), dpi=100)
-        self.ax = figure.add_axes([0.1, 0.1, 0.8, 0.8])
+        figure = plt.Figure(figsize=(12, 6), dpi=100)
+        ax1 = figure.add_subplot(2,3,1)
+        ax2 = figure.add_subplot(2,3,2)
+        ax3 = figure.add_subplot(2,3,3)
+        ax4 = figure.add_subplot(2,1,2)
+        self.ax1 = figure.add_axes(ax1)
+        self.ax2 = figure.add_axes(ax2)
+        self.ax3 = figure.add_axes(ax3)
+        self.ax4 = figure.add_axes(ax4)
         self.canvas = FigureCanvasTkAgg(figure, self.plot_frame)
-        self.canvas.get_tk_widget().grid(row=0, column=1)
+        
+        self.canvas.get_tk_widget().grid()
         self.canvas.draw()
 
-    def plot_dataframe(self, canvas, ax):
-        ax.clear()         # clear axes from previous plot
+    def plot_dataframe(self, canvas,ax1,ax2,ax3,ax4):
+        ax1.clear() 
+        ax2.clear() 
+        ax3.clear() 
+        ax4.clear()         # clear axes from previous plot
         df = pd.read_csv(r'dataframe.csv')
-        ax.plot(df.index, df.value)
+        ax4.plot(df.index, df.value)
+        ax4.set_title("Algorithm Flow",fontsize=10)
+        ax4.grid()
+        crossover_amount,mutation_amount,cx_amount,ox_amount,pmx_amount,inversion_amount,scramble_amount,swap_amount = files.genetetic_operation_analisys('genetics_operation.csv')
+        ax1.bar(['Crossover','Mutation'],[crossover_amount,mutation_amount])
+        ax1.set_title("Genetics operand")
+        ax2.bar(['CX','OX','PMX'],[cx_amount,ox_amount,pmx_amount])
+        ax2.set_title("Crossover type")
+        ax3.bar(['Swap','Scramble','Inversion'],[swap_amount,scramble_amount,inversion_amount])
+        ax3.set_title("Mutation type")
         canvas.draw()
 
 
