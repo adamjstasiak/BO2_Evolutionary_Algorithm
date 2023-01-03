@@ -251,14 +251,6 @@ class Parameters(tk.Frame):
             self, text="Parcels")
         parcel_frame.grid(row=2, column=0, padx=5, pady=5, columnspan=4)
 
-        # Number of parcels
-        # pop_size_str = ttk.Label(parcel_frame, text='Number of parcels:')
-        # pop_size_str.grid(row=0, column=0, padx=5,
-        #                   pady=3, sticky='E')
-        #
-        # display_num_of_parcels = ttk.Label(parcel_frame, text="")
-        # display_num_of_parcels.grid(row=0, column=1, padx=5, pady=3)
-        # display_num_of_parcels.configure(text="%d" % len(flow_matrix))
         # Parcel size
         par_size_str = ttk.Label(parcel_frame, text='Number of parcels')
         par_size_str.grid(row=0, column=0, padx=5, pady=3)
@@ -270,7 +262,6 @@ class Parameters(tk.Frame):
         par_entry = ttk.Entry(
             parcel_frame, textvariable=self.parcel_size, justify='right')
         par_entry.grid(row=0, column=1, padx=5, pady=3)
-
 
         # Parcels type
         self.parcel_type = tk.StringVar()
@@ -354,8 +345,6 @@ class Parameters(tk.Frame):
         self.increment = 0
 
     def paint_parcels(self, event):
-        # TODO:
-        # if self.increment < self.number_of_parcels.get():
         if self.increment < self.parcel_size.get():
             self.parcel_distances.append([event.x, event.y])
             x1, y1 = (event.x - 12), (event.y - 12)
@@ -416,11 +405,6 @@ class Parameters(tk.Frame):
         else:
             mut_probability = 0
 
-        # print('PMX: ', self.PMX_crossover.get())
-        # print('OX: ', self.OX_crossover.get())
-        # print('CX: ', self.CX_crossover.get())
-        # print('--------------')
-
         best_individual, current_min_value, min_values_list, operand_type, crossover_type, mutation_type = genetic_algorithm(self.distance_matrix, self.flow_matrix, factory_list, self.population_size.get(),
                                                                                                                              self.selection_size.get(), self.number_of_generations.get(), selection_type=self.selection.get(),
                                                                                                                              crossover_probability=self.crossover_percentage.get(), mutation_probability=self.mutation_percentage.get(),
@@ -428,13 +412,11 @@ class Parameters(tk.Frame):
                                                                                                                              ox_probability=self.OX_crossover.get(), swap_probability=self.swap_mutation.get(),
                                                                                                                              inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get(), stop_count=self.stop_count.get())
 
-        # TODO: Enter dataframe with min values from algorithm
         data = [operand_type, crossover_type, mutation_type]
         files.clearing_csv('dataframe.csv')
         files.clearing_csv('genetics_operation.csv')
         files.export_to_csv_values(min_values_list, 'dataframe.csv')
         files.export_to_csv_characteristics(data, 'genetics_operation.csv')
-        # TODO: Change setting default value to max parcels (equal to factories list size)
 
         graph_page.plot_dataframe(graph_page.canvas, graph_page.ax1,
                                   graph_page.ax2, graph_page.ax3, graph_page.ax4)  # df
@@ -447,7 +429,6 @@ class Parameters(tk.Frame):
         if len(self.distance_matrix) == len(self.flow_matrix):
             self.solution.insert('end', 'Solution: %s' % str(
                 str(best_individual) + '  sum: ' + str(current_min_value)))
-
 
 # second window frame FunctionFlowGraph
 class FunctionFlowGraph(tk.Frame):
@@ -509,7 +490,6 @@ class FunctionFlowGraph(tk.Frame):
         ax3.set_title("Mutation type")
         canvas.draw()
 
-
 class Matrices(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -561,13 +541,6 @@ class Matrices(tk.Frame):
         label.image = test
 
 
-# flow = [[np.inf, 4, 2, 2, 3, 1],
-#         [4, np.inf, 3, 5, 5, 8],
-#         [2, 3, np.inf, 9, 6, 4],
-#         [2, 5, 9, np.inf, 7, 9],
-#         [3, 5, 6, 7, np.inf, 2],
-#         [1, 8, 4, 9, 2, np.inf]]
-
 flow_test = [[np.inf, 1000, 1, 1, 1, 1],
              [1000, np.inf, 1000, 1, 1, 1],
              [1, 1000, np.inf, 1000, 1, 1],
@@ -584,13 +557,9 @@ distance_matrix_test = [[np.inf, 1, 1000, 1000, 1000, 1000],
 
 distance_matrix_test = np.array(distance_matrix_test)
 
-# flow_matrix = np.array(flow)
-
-
 def main():
 
     app = tkinterApp()
-    # print('bbbbb', app.get_page(Parameters).population_size.get())
     app.mainloop()
 
 if __name__ == "__main__":

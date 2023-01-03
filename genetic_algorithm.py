@@ -95,7 +95,7 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
             fitness_table_for_current_population.append(
                 fun.operative_function(selected_population[i], distance, flow))
         max_selected = min(fitness_table_for_current_population)
-        if max_selected == current_min_value:
+        if max_selected >= current_min_value:
             counter += 1
         if max_selected < current_min_value:
             counter = 0
@@ -109,46 +109,3 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
         current_generation += 1
         min_values_list.append(current_min_value)
     return best_individual, current_min_value, min_values_list,operand_type,crossover_type,mutation_type
-
-
-def main():
-    dist = [[np.inf, 5, 12, 11, 5, 9],
-            [5, np.inf, 7, 5, 4, 7],
-            [12, 7, np.inf, 1, 6, 10],
-            [11, 5, 1, np.inf, 2, 4],
-            [5, 4, 6, 2, np.inf, 4],
-            [9, 7, 10, 6, 4, np.inf]]
-
-    flow = [[np.inf, 4, 2, 2, 3, 1],
-            [4, np.inf, 3, 5, 5, 8],
-            [2, 3, np.inf, 9, 6, 4],
-            [2, 5, 9, np.inf, 7, 9],
-            [3, 5, 6, 7, np.inf, 2],
-            [1, 8, 4, 9, 2, np.inf]]
-
-    dist_matrix = np.array(dist)
-    flow_matrix = np.array(flow)
-    parcels_number = 6
-    factory_number = 6
-    fac_list = fun.create_fabric_list(parcels_number, factory_number)
-    # fac_list = [2, 3, 4, 5, 0, 1]
-    solution, value, list = genetic_algorithm(
-        dist_matrix, flow_matrix, fac_list, 50, 30, 4, crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1, ox_probability=1,
-        swap_probability=1, inversion_probability=1, scramble_probability=1)
-    # print(fac_list, fun.operative_function(
-    #     fac_list, dist_matrix, flow_matrix), '   - wartosc poczatkowa')
-    # print(solution, value, '   - wartosc koncowa')
-
-    # dist, flow = fun.create_random_data_matrix(parcels_number, factory_number)
-    # fac_list = fun.create_fabric_list(parcels_number, factory_number)
-    # # print(fac_list)
-    # # print(dist)
-    # # print(flow)
-    # solution, value = genetic_algorithm(
-    #     dist, flow, fac_list, 30, 15, 20, 90, 10, crossover_type='pmx')
-    print(solution)
-    print(value)
-
-
-if __name__ == "__main__":
-    main()
