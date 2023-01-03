@@ -251,18 +251,29 @@ class Parameters(tk.Frame):
         parcel_frame.grid(row=2, column=0, padx=5, pady=5, columnspan=4)
 
         # Number of parcels
-        pop_size_str = ttk.Label(parcel_frame, text='Number of parcels:')
-        pop_size_str.grid(row=0, column=0, padx=5,
-                          pady=3, sticky='E')
+        # pop_size_str = ttk.Label(parcel_frame, text='Number of parcels:')
+        # pop_size_str.grid(row=0, column=0, padx=5,
+        #                   pady=3, sticky='E')
+        #
+        # display_num_of_parcels = ttk.Label(parcel_frame, text="")
+        # display_num_of_parcels.grid(row=0, column=1, padx=5, pady=3)
+        # display_num_of_parcels.configure(text="%d" % len(flow_matrix))
+        # Parcel size
+        par_size_str = ttk.Label(parcel_frame, text='Number of parcels')
+        par_size_str.grid(row=0, column=0, padx=5, pady=3)
 
-        display_num_of_parcels = ttk.Label(parcel_frame, text="")
-        display_num_of_parcels.grid(row=0, column=1, padx=5, pady=3)
-        display_num_of_parcels.configure(text="%d" % len(flow_matrix))
+        self.parcel_size = tk.IntVar()
+        self.parcel_size.trace("w", lambda name, index,
+                                           mode, sv=self.parcel_size: self.callback(sv))
+        self.parcel_size.set(6)
+        par_entry = ttk.Entry(
+            parcel_frame, textvariable=self.parcel_size, justify='right')
+        par_entry.grid(row=0, column=1, padx=5, pady=3)
 
         # Parcels type
         self.parcel_type = tk.StringVar()
         self.parcel_type.trace("w", lambda name, index,
-                               mode, sv=self.parcel_type: self.callback(sv))
+                               mode, sv=self.parcel_type: self.callback_parcel(sv))
         self.parcel_type.set('file')
         file_parcels = ttk.Radiobutton(
             parcel_frame, text='From file', variable=self.parcel_type, value='file')
@@ -271,6 +282,10 @@ class Parameters(tk.Frame):
         canvas_parcels = ttk.Radiobutton(
             parcel_frame, text='From canvas', variable=self.parcel_type, value='canvas')
         canvas_parcels.grid(row=1, column=1, padx=5, pady=2)
+
+        random_parcels = ttk.Radiobutton(
+            parcel_frame, text='Random', variable=self.parcel_type, value='random')
+        random_parcels.grid(row=1, column=2, padx=5, pady=2)
 
         # Reset
         self.reset = ttk.Button(parcel_frame, text="reset", style='my.TButton',
@@ -348,10 +363,15 @@ class Parameters(tk.Frame):
         self.mutation_percentage.set(100 - sv.get())
         return [sv._name, sv.get()]
 
+    def callback_parcel(self,sv):
+        self.parcel_size.set(6)
+        return [sv._name, sv.get()]
+
     def start_algorithm(self):
         # graph_page
         graph_page = self.controller.get_page(FunctionFlowGraph)
         matrices_page = self.controller.get_page(Matrices)
+        flow_matrix = files.import_flow_matrix('flow_matrix.xlsx')
 
         # TODO: Make factory list by size from other file (txt, csv, xls)
         factory_list = fun.create_fabric_list(len(flow_matrix))
@@ -361,6 +381,8 @@ class Parameters(tk.Frame):
             self.reset_canvas_when_file()
         elif self.parcel_type.get() == 'canvas':
             distance_matrix = self.distance_matrix_from_points()
+        elif self.parcel_type.get() == 'random':
+            distance_matrix, flow_matrix = fun.create_random_data_matrix(self.parcel_size.get(), self.parcel_size.get())
 
         cross_probability = 1
         if self.PMX_crossover.get() == 1 or self.OX_crossover.get() == 1 or self.CX_crossover.get() == 1:
@@ -552,7 +574,6 @@ distance_matrix_test = [[np.inf, 1, 1000, 1000, 1000, 1000],
 
 distance_matrix_test = np.array(distance_matrix_test)
 
-flow_matrix = files.import_flow_matrix('flow_matrix.xlsx')
 # flow_matrix = np.array(flow)
 
 
