@@ -9,6 +9,8 @@ import function as fun
 import files
 import pandas as pd
 from copy import copy
+import dataframe_image as dfi
+from PIL import Image, ImageTk
 
 
 class tkinterApp(tk.Tk):
@@ -31,10 +33,10 @@ class tkinterApp(tk.Tk):
 
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (Parameters, FunctionFlowGraph):
+        for F in (Parameters, FunctionFlowGraph, Matrices):
             frame = F(container, self)
             # initializing frame of that object from
-            # Parameters, FunctionFlowGraph respectively with
+            # Parameters, FunctionFlowGraph, Matrices respectively with
             # for loop
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -65,6 +67,10 @@ class Parameters(tk.Frame):
         graph_frame = ttk.Button(self, text="Function Flow Graph",
                                  command=lambda: controller.show_frame(FunctionFlowGraph))
         graph_frame.grid(row=0, column=1, padx=5, pady=5)
+
+        matrices_frame = ttk.Button(self, text='Matrices',
+                                    command=lambda: controller.show_frame(Matrices))
+        matrices_frame.grid(row=0, column=2)
 
         # Main parameters frame
         label_frame = ttk.LabelFrame(
@@ -107,11 +113,23 @@ class Parameters(tk.Frame):
             label_frame, textvariable=self.selection_size, justify='right')
         par_entry.grid(row=2, column=1, padx=5, pady=3)
 
+        # Stop count
+        stop_count_str = ttk.Label(label_frame, text='Stop count')
+        stop_count_str.grid(row=3, column=0, padx=5, pady=3)
+
+        self.stop_count = tk.IntVar()
+        self.stop_count.trace("w", lambda name, index,
+                              mode, sv=self.stop_count: self.callback(sv))
+        self.stop_count.set(50)
+        par_entry = ttk.Entry(
+            label_frame, textvariable=self.stop_count, justify='right')
+        par_entry.grid(row=3, column=1, padx=5, pady=3)
+
         # Main parameters frame
         crossover_mutation_frame = ttk.LabelFrame(
             label_frame, text="Crossover/Mutation [%]")
         crossover_mutation_frame.grid(
-            row=3, column=0, padx=20, pady=7, columnspan=2)
+            row=4, column=0, padx=20, pady=7, columnspan=2)
 
         # Mutation or crossover percentage row
         # Mutation
@@ -315,16 +333,25 @@ class Parameters(tk.Frame):
         return [sv._name, sv.get()]
 
     def callback_mut(self, sv):
-        self.crossover_percentage.set(100 - self.mutation_percentage.get())
+        if sv.get() > 100:
+            sv.set(100)
+        if sv.get() < 0:
+            sv.set(0)
+        self.crossover_percentage.set(100 - sv.get())
         return [sv._name, sv.get()]
 
     def callback_cross(self, sv):
-        self.mutation_percentage.set(100 - self.crossover_percentage.get())
+        if sv.get() > 100:
+            sv.set(100)
+        if sv.get() < 0:
+            sv.set(0)
+        self.mutation_percentage.set(100 - sv.get())
         return [sv._name, sv.get()]
 
     def start_algorithm(self):
         # graph_page
         graph_page = self.controller.get_page(FunctionFlowGraph)
+        matrices_page = self.controller.get_page(Matrices)
 
         # TODO: Make factory list by size from other file (txt, csv, xls)
         factory_list = fun.create_fabric_list(len(flow_matrix))
@@ -365,9 +392,16 @@ class Parameters(tk.Frame):
         files.export_to_csv_values(min_values_list, 'dataframe.csv')
         files.export_to_csv_characteristics(data, 'genetics_operation.csv')
         # TODO: Change setting default value to max parcels (equal to factories list size)
+
         graph_page.plot_dataframe(graph_page.canvas, graph_page.ax)  # df
 
         self.paint_factories(best_individual)
+
+        matrices_page.display_matrix(
+            matrices_page.dist_mat_image, distance_matrix, 'distance')
+
+        matrices_page.display_matrix(
+            matrices_page.flow_mat_image, flow_matrix, 'flow')
 
         if self.solution.size() > 4:
             self.solution.delete(0)
@@ -383,13 +417,18 @@ class FunctionFlowGraph(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
+        # Changing main frames buttons
         param_frame = ttk.Button(self, text="Parameters",
                                  command=lambda: controller.show_frame(Parameters))
-        param_frame.grid(row=0, column=0, padx=22, pady=5)
+        param_frame.grid(row=0, column=0, padx=5, pady=5)
 
         graph_frame = ttk.Button(self, text="Function Flow Graph",
                                  command=lambda: controller.show_frame(FunctionFlowGraph))
-        graph_frame.grid(row=0, column=2, padx=21, pady=5, sticky='E')
+        graph_frame.grid(row=0, column=1, padx=5, pady=5)
+
+        matrices_frame = ttk.Button(self, text='Matrices',
+                                    command=lambda: controller.show_frame(Matrices))
+        matrices_frame.grid(row=0, column=2, padx=5, pady=5)
 
         s = ttk.Style()
         s.configure('My.TFrame', background='green')
@@ -404,13 +443,62 @@ class FunctionFlowGraph(tk.Frame):
         self.canvas.get_tk_widget().grid(row=0, column=1)
         self.canvas.draw()
 
-    # TODO: change to get dataframe from other file
     def plot_dataframe(self, canvas, ax):
         ax.clear()         # clear axes from previous plot
         df = pd.read_csv(r'dataframe.csv')
         ax.plot(df.index, df.value)
-
         canvas.draw()
+
+
+class Matrices(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        parameters_page = self.controller.get_page(Parameters)
+
+        # Changing main frames buttons
+        param_frame = ttk.Button(self, text="Parameters",
+                                 command=lambda: controller.show_frame(Parameters))
+        param_frame.grid(row=0, column=0, padx=5, pady=5)
+
+        graph_frame = ttk.Button(self, text="Function Flow Graph",
+                                 command=lambda: controller.show_frame(FunctionFlowGraph))
+        graph_frame.grid(row=0, column=1, padx=5, pady=5)
+
+        matrices_frame = ttk.Button(self, text='Matrices',
+                                    command=lambda: controller.show_frame(Matrices))
+        matrices_frame.grid(row=0, column=2, padx=5, pady=5)
+
+        # Distance matrix
+        dist_mat_txt = ttk.Label(self, text='Distance matrix:')
+        dist_mat_txt.grid(row=1, column=0, columnspan=3,
+                          sticky='W', padx=5, pady=5)
+
+        self.dist_mat_image = ttk.Label(self)
+        self.dist_mat_image.grid(
+            row=2, column=0, columnspan=3, sticky='W', padx=5, pady=5)
+
+        # Flow matrix
+        flow_mat_txt = ttk.Label(self, text='Flow matrix:')
+        flow_mat_txt.grid(row=3, column=0, columnspan=3,
+                          sticky='W', padx=5, pady=5)
+
+        self.flow_mat_image = ttk.Label(self)
+        self.flow_mat_image.grid(
+            row=4, column=0, columnspan=3, sticky='W', padx=5, pady=5)
+
+    def display_matrix(self, label: ttk.Label, data, text):
+        """
+        save and display matrices
+        """
+        df = pd.DataFrame(data)
+        name = text + "_matrix.png"
+        dfi.export(df, name)
+
+        image1 = Image.open(name)
+        test = ImageTk.PhotoImage(image1)
+        label.configure(image=test)
+        label.image = test
 
 
 # flow = [[np.inf, 4, 2, 2, 3, 1],
