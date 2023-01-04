@@ -33,10 +33,10 @@ class tkinterApp(tk.Tk):
 
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (Parameters, FunctionFlowGraph, Matrices):
+        for F in (Parameters, FunctionFlowGraph, DistanceMatrix, FlowMatrix):
             frame = F(container, self)
             # initializing frame of that object from
-            # Parameters, FunctionFlowGraph, Matrices respectively with
+            # Parameters, FunctionFlowGraph, DistanceMatrix, FlowMatrix respectively with
             # for loop
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -61,76 +61,95 @@ class Parameters(tk.Frame):
         self.flow_matrix = files.import_flow_matrix('flow_matrix.xlsx')
         self.controller = controller
         # Changing main frames buttons
-        param_frame = ttk.Button(self, text="Parameters",
+        menu_frame = tk.Frame(self)
+        menu_frame.grid(row=0, column=0, sticky='W')
+
+        param_frame = ttk.Button(menu_frame, text="Parameters",
                                  command=lambda: controller.show_frame(Parameters))
         param_frame.grid(row=0, column=0, padx=5, pady=5)
 
-        graph_frame = ttk.Button(self, text="Function Flow Graph",
+        graph_frame = ttk.Button(menu_frame, text="Function Flow Graph",
                                  command=lambda: controller.show_frame(FunctionFlowGraph))
         graph_frame.grid(row=0, column=1, padx=5, pady=5)
 
-        matrices_frame = ttk.Button(self, text='Matrices',
-                                    command=lambda: controller.show_frame(Matrices))
-        matrices_frame.grid(row=0, column=2)
+        matrices_frame = ttk.Button(menu_frame, text='Distance matrix',
+                                    command=lambda: controller.show_frame(DistanceMatrix))
+        matrices_frame.grid(row=0, column=2, padx=5, pady=5)
+
+        matrices_frame_button = ttk.Button(menu_frame, text='Flow matrix',
+                                           command=lambda: controller.show_frame(FlowMatrix))
+        matrices_frame_button.grid(row=0, column=3, padx=5, pady=5)
 
         # Main parameters frame
-        label_frame = ttk.LabelFrame(
-            self, text="Population parameters")
-        label_frame.grid(row=1, column=0, padx=20, pady=5, columnspan=4)
+        main_frame = tk.Frame(self)
+        main_frame.grid(row=1, column=0)
+
+        parameters_frame = ttk.LabelFrame(
+            main_frame, text="Population parameters")
+        parameters_frame.grid(row=0, column=0, padx=20, pady=5, columnspan=3)
 
         # Number of generations row
-        generations_str = ttk.Label(label_frame, text='Number of generations')
-        generations_str.grid(row=0, column=0, padx=5, pady=3)
+        generations_str = ttk.Label(
+            parameters_frame, text='Number of generations')
+        generations_str.grid(row=0, column=0, padx=5, pady=3,
+                             columnspan=2, sticky='W')
 
         self.number_of_generations = tk.IntVar()
         self.number_of_generations.trace("w", lambda name, index,
                                          mode, sv=self.number_of_generations: self.callback(sv))
         self.number_of_generations.set(100)
         num_of_gen_entry = ttk.Entry(
-            label_frame, textvariable=self.number_of_generations, justify='right')
-        num_of_gen_entry.grid(row=0, column=1, padx=5, pady=3)
+            parameters_frame, textvariable=self.number_of_generations, justify='right', width=15)
+        num_of_gen_entry.grid(row=0, column=1, padx=5,
+                              pady=3, columnspan=2, sticky='E')
 
         # Population size row
-        pop_size_str = ttk.Label(label_frame, text='Population size')
-        pop_size_str.grid(row=1, column=0, padx=5, pady=3)
+        pop_size_str = ttk.Label(parameters_frame, text='Population size')
+        pop_size_str.grid(row=1, column=0, padx=5, pady=3,
+                          columnspan=2, sticky='W')
 
         self.population_size = tk.IntVar()
         self.population_size.trace("w", lambda name, index,
                                    mode, sv=self.population_size: self.callback(sv))
         self.population_size.set(20)
         pop_entry = ttk.Entry(
-            label_frame, textvariable=self.population_size, justify='right')
-        pop_entry.grid(row=1, column=1, padx=5, pady=3)
+            parameters_frame, textvariable=self.population_size, justify='right', width=15)
+        pop_entry.grid(row=1, column=1, padx=5, pady=3,
+                       columnspan=2, sticky='E')
 
         # Selection size row
-        parent_str = ttk.Label(label_frame, text='Selection size [%]')
-        parent_str.grid(row=2, column=0, padx=5, pady=3)
+        parent_str = ttk.Label(parameters_frame, text='Selection size [%]')
+        parent_str.grid(row=2, column=0, padx=5, pady=3,
+                        columnspan=2, sticky='W')
 
         self.selection_size = tk.IntVar()
         self.selection_size.trace("w", lambda name, index,
                                   mode, sv=self.selection_size: self.callback(sv))
         self.selection_size.set(50)
         par_entry = ttk.Entry(
-            label_frame, textvariable=self.selection_size, justify='right')
-        par_entry.grid(row=2, column=1, padx=5, pady=3)
+            parameters_frame, textvariable=self.selection_size, justify='right', width=15)
+        par_entry.grid(row=2, column=1, padx=5, pady=3,
+                       columnspan=2, sticky='E')
 
         # Stop count
-        stop_count_str = ttk.Label(label_frame, text='Stop count')
-        stop_count_str.grid(row=3, column=0, padx=5, pady=3)
+        stop_count_str = ttk.Label(parameters_frame, text='Stop count')
+        stop_count_str.grid(row=3, column=0, padx=5,
+                            pady=3, columnspan=2, sticky='W')
 
         self.stop_count = tk.IntVar()
         self.stop_count.trace("w", lambda name, index,
                               mode, sv=self.stop_count: self.callback(sv))
         self.stop_count.set(50)
         par_entry = ttk.Entry(
-            label_frame, textvariable=self.stop_count, justify='right')
-        par_entry.grid(row=3, column=1, padx=5, pady=3)
+            parameters_frame, textvariable=self.stop_count, justify='right', width=15)
+        par_entry.grid(row=3, column=1, padx=5, pady=3,
+                       columnspan=2, sticky='E')
 
         # Main parameters frame
         crossover_mutation_frame = ttk.LabelFrame(
-            label_frame, text="Crossover/Mutation [%]")
+            parameters_frame, text="Crossover/Mutation [%]")
         crossover_mutation_frame.grid(
-            row=4, column=0, padx=20, pady=7, columnspan=2)
+            row=4, column=0, padx=20, pady=7, columnspan=3)
 
         # Mutation or crossover percentage row
         # Mutation
@@ -160,11 +179,11 @@ class Parameters(tk.Frame):
 
         # Mutation and Crossover frame
         mutation_frame = ttk.LabelFrame(
-            label_frame, text="Mutation", width=100, height=50)
+            parameters_frame, text="Mutation", width=100, height=50)
         mutation_frame.grid(row=5, column=0, padx=5, pady=5)
 
         crossover_frame = ttk.LabelFrame(
-            label_frame, text="Crossover", width=100, height=50)
+            parameters_frame, text="Crossover", width=100, height=50)
         crossover_frame.grid(row=5, column=1, padx=5, pady=5)
 
         # Mutation frame (swap, inversion, scramble)
@@ -217,8 +236,8 @@ class Parameters(tk.Frame):
 
         # Selection Frame and buttons (Roulette, Ranking)
         selection_frame = ttk.LabelFrame(
-            label_frame, text="Selection", width=100, height=50)
-        selection_frame.grid(row=6, column=0, padx=5, pady=5, columnspan=2)
+            parameters_frame, text="Selection", width=100, height=50)
+        selection_frame.grid(row=5, column=2, padx=5, pady=5, columnspan=2)
 
         self.selection = tk.StringVar()
         self.selection.trace("w", lambda name, index,
@@ -230,26 +249,44 @@ class Parameters(tk.Frame):
 
         ranking_selection_radiobutton = ttk.Radiobutton(
             selection_frame, text='Ranking', variable=self.selection, value='ranking')
-        ranking_selection_radiobutton.grid(row=0, column=1, padx=5, pady=2)
+        ranking_selection_radiobutton.grid(row=1, column=0, padx=5, pady=2)
+
+        # Population type
+        population_type_frame = ttk.LabelFrame(
+            parameters_frame, text="Population type", width=100, height=50)
+        population_type_frame.grid(
+            row=6, column=0, padx=5, pady=5, columnspan=3)
+
+        self.population_type = tk.StringVar()
+        self.population_type.trace("w", lambda name, index,
+                                   mode, sv=self.population_type: self.callback(sv))
+        self.population_type.set('mi')
+        mi_population_type = ttk.Radiobutton(
+            population_type_frame, text='mi', variable=self.population_type, value='mi')
+        mi_population_type.grid(row=0, column=0, padx=5, pady=2)
+
+        mi_plus_lambda_population_type = ttk.Radiobutton(
+            population_type_frame, text='mi + lambda', variable=self.population_type, value='mi + lambda')
+        mi_plus_lambda_population_type.grid(row=0, column=1, padx=5, pady=2)
 
         # Start
         s = ttk.Style()
         s.configure('my.TButton', font=('Helvetica', 20))
-        self.start = ttk.Button(label_frame, text="Start", style='my.TButton',
+        self.start = ttk.Button(parameters_frame, text="Start", style='my.TButton',
                                 command=self.start_algorithm)
-        self.start.grid(row=7, column=0, padx=5, pady=5, columnspan=2)
+        self.start.grid(row=7, column=0, padx=5, pady=5, columnspan=3)
 
         # Canvas
-        self.canv = tk.Canvas(self, width=745, height=520,
+        self.canv = tk.Canvas(main_frame, width=745, height=520,
                               background='pink', borderwidth=10)
-        self.canv.grid(row=1, column=4, padx=5,
-                       pady=5, rowspan=2, columnspan=2)
+        self.canv.grid(row=0, column=3, padx=5,
+                       pady=5, rowspan=2, sticky=('N', 'W'))
         self.canv.bind("<ButtonPress-1>", self.paint_parcels)
 
         # Parcels frame
         parcel_frame = ttk.LabelFrame(
-            self, text="Parcels")
-        parcel_frame.grid(row=2, column=0, padx=5, pady=5, columnspan=4)
+            main_frame, text="Parcels")
+        parcel_frame.grid(row=1, column=0, padx=5, pady=5, columnspan=3)
 
         # Parcel size
         par_size_str = ttk.Label(parcel_frame, text='Number of parcels')
@@ -257,7 +294,7 @@ class Parameters(tk.Frame):
 
         self.parcel_size = tk.IntVar()
         self.parcel_size.trace("w", lambda name, index,
-                                           mode, sv=self.parcel_size: self.callback(sv))
+                               mode, sv=self.parcel_size: self.callback(sv))
         self.parcel_size.set(6)
         par_entry = ttk.Entry(
             parcel_frame, textvariable=self.parcel_size, justify='right')
@@ -270,15 +307,15 @@ class Parameters(tk.Frame):
         self.parcel_type.set('file')
         file_parcels = ttk.Radiobutton(
             parcel_frame, text='From file', variable=self.parcel_type, value='file')
-        file_parcels.grid(row=2, column=0, padx=5, pady=2)
+        file_parcels.grid(row=2, column=0, padx=1, pady=2, columnspan=2)
 
         canvas_parcels = ttk.Radiobutton(
             parcel_frame, text='From canvas', variable=self.parcel_type, value='canvas')
-        canvas_parcels.grid(row=2, column=1, padx=5, pady=2)
+        canvas_parcels.grid(row=3, column=0, padx=1, pady=2, columnspan=2)
 
         random_parcels = ttk.Radiobutton(
             parcel_frame, text='Random', variable=self.parcel_type, value='random')
-        random_parcels.grid(row=2, column=2, padx=5, pady=2)
+        random_parcels.grid(row=4, column=0, padx=1, pady=2, columnspan=2)
 
         # Generate
         self.parcel_distances = []
@@ -288,11 +325,12 @@ class Parameters(tk.Frame):
         # Reset
         self.reset = ttk.Button(parcel_frame, text="reset", style='my.TButton',
                                 command=self.reset_canvas)
-        self.reset.grid(row=3, column=0, padx=5, pady=10, columnspan=3)
+        self.reset.grid(row=5, column=0, padx=5, pady=10, columnspan=3)
 
         # Write solution
-        self.solution = tk.Listbox(self, height=5, width=170)
-        self.solution.grid(column=0, row=3, padx=20, pady=10, columnspan=4000)
+        self.solution = tk.Listbox(main_frame, height=5, width=140)
+        self.solution.grid(column=3, row=1, padx=6, pady=10,
+                           sticky=('W', 'S'))
 
         self.increment = 0
         self.canv_solutions = []
@@ -310,7 +348,8 @@ class Parameters(tk.Frame):
     def generate_matrix(self):
         if self.parcel_type.get() == 'file':
             self.reset_canvas_when_file()
-            self.distance_matrix = files.import_flow_matrix('distance_matrix.xlsx')
+            self.distance_matrix = files.import_flow_matrix(
+                'distance_matrix.xlsx')
             self.flow_matrix = files.import_flow_matrix('flow_matrix.xlsx')
             print('file')
         elif self.parcel_type.get() == 'canvas':
@@ -320,13 +359,15 @@ class Parameters(tk.Frame):
         elif self.parcel_type.get() == 'random':
             self.reset_canvas_when_file()
             self.distance_matrix, self.flow_matrix = fun.create_random_data_matrix(self.parcel_size.get(),
-                                                                              self.parcel_size.get())
-        matrices_page = self.controller.get_page(Matrices)
-        matrices_page.display_matrix(
-            matrices_page.dist_mat_image, self.distance_matrix, 'distance')
+                                                                                   self.parcel_size.get())
+        distance_matrix_page = self.controller.get_page(DistanceMatrix)
+        flow_matrix_page = self.controller.get_page(FlowMatrix)
 
-        matrices_page.display_matrix(
-            matrices_page.flow_mat_image, self.flow_matrix, 'flow')
+        distance_matrix_page.display_matrix(
+            distance_matrix_page.dist_mat_image, self.distance_matrix, 'distance')
+
+        flow_matrix_page.display_matrix(
+            flow_matrix_page.flow_mat_image, self.flow_matrix, 'flow')
 
         if len(self.flow_matrix) > len(self.distance_matrix):
             self.solution.delete(0, tk.END)
@@ -384,7 +425,7 @@ class Parameters(tk.Frame):
         self.mutation_percentage.set(100 - sv.get())
         return [sv._name, sv.get()]
 
-    def callback_parcel(self,sv):
+    def callback_parcel(self, sv):
         self.parcel_size.set(6)
         return [sv._name, sv.get()]
 
@@ -431,6 +472,8 @@ class Parameters(tk.Frame):
                 str(best_individual) + '  sum: ' + str(current_min_value)))
 
 # second window frame FunctionFlowGraph
+
+
 class FunctionFlowGraph(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -445,9 +488,13 @@ class FunctionFlowGraph(tk.Frame):
                                  command=lambda: controller.show_frame(FunctionFlowGraph))
         graph_frame.grid(row=0, column=1, padx=5, pady=5)
 
-        matrices_frame = ttk.Button(self, text='Matrices',
-                                    command=lambda: controller.show_frame(Matrices))
+        matrices_frame = ttk.Button(self, text='Distance matrix',
+                                    command=lambda: controller.show_frame(DistanceMatrix))
         matrices_frame.grid(row=0, column=2, padx=5, pady=5)
+
+        matrices_frame_button = ttk.Button(self, text='Flow matrix',
+                                           command=lambda: controller.show_frame(FlowMatrix))
+        matrices_frame_button.grid(row=0, column=3, padx=4, pady=5)
 
         s = ttk.Style()
         s.configure('My.TFrame', background='green')
@@ -490,42 +537,96 @@ class FunctionFlowGraph(tk.Frame):
         ax3.set_title("Mutation type")
         canvas.draw()
 
-class Matrices(tk.Frame):
+
+class DistanceMatrix(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         parameters_page = self.controller.get_page(Parameters)
 
+        menu_frame = ttk.Frame(self)
+        menu_frame.grid(row=0, column=0, sticky='W')
+
+        matrices_frame = ttk.Frame(self)
+        matrices_frame.grid(row=1, column=0, sticky='W')
+
         # Changing main frames buttons
-        param_frame = ttk.Button(self, text="Parameters",
-                                 command=lambda: controller.show_frame(Parameters))
-        param_frame.grid(row=0, column=0, padx=5, pady=5)
+        param_frame_button = ttk.Button(menu_frame, text="Parameters",
+                                        command=lambda: controller.show_frame(Parameters))
+        param_frame_button.grid(row=0, column=0, padx=5, pady=5)
 
-        graph_frame = ttk.Button(self, text="Function Flow Graph",
-                                 command=lambda: controller.show_frame(FunctionFlowGraph))
-        graph_frame.grid(row=0, column=1, padx=5, pady=5)
+        graph_frame_button = ttk.Button(menu_frame, text="Function Flow Graph",
+                                        command=lambda: controller.show_frame(FunctionFlowGraph))
+        graph_frame_button.grid(row=0, column=1, padx=5, pady=5)
 
-        matrices_frame = ttk.Button(self, text='Matrices',
-                                    command=lambda: controller.show_frame(Matrices))
-        matrices_frame.grid(row=0, column=2, padx=5, pady=5)
+        matrices_frame_button = ttk.Button(menu_frame, text='Distance matrix',
+                                           command=lambda: controller.show_frame(DistanceMatrix))
+        matrices_frame_button.grid(row=0, column=2, padx=5, pady=5)
+
+        matrices_frame_button = ttk.Button(menu_frame, text='Flow matrix',
+                                           command=lambda: controller.show_frame(FlowMatrix))
+        matrices_frame_button.grid(row=0, column=3, padx=5, pady=5)
 
         # Distance matrix
-        dist_mat_txt = ttk.Label(self, text='Distance matrix:')
-        dist_mat_txt.grid(row=1, column=0, columnspan=3,
+        dist_mat_txt = ttk.Label(matrices_frame, text='Distance matrix:')
+        dist_mat_txt.grid(row=0, column=0,
                           sticky='W', padx=5, pady=5)
 
-        self.dist_mat_image = ttk.Label(self)
+        self.dist_mat_image = ttk.Label(matrices_frame)
         self.dist_mat_image.grid(
-            row=2, column=0, columnspan=3, sticky='W', padx=5, pady=5)
+            row=1, column=0, sticky='W', padx=5, pady=5)
+
+    def display_matrix(self, label: ttk.Label, data, text):
+        """
+        save and display matrices
+        """
+        df = pd.DataFrame(data)
+        name = text + "_matrix.png"
+        dfi.export(df, name)
+
+        image1 = Image.open(name)
+        test = ImageTk.PhotoImage(image1)
+        label.configure(image=test)
+        label.image = test
+
+
+class FlowMatrix(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        parameters_page = self.controller.get_page(Parameters)
+
+        menu_frame = ttk.Frame(self)
+        menu_frame.grid(row=0, column=0, sticky='W')
+
+        matrices_frame = ttk.Frame(self)
+        matrices_frame.grid(row=1, column=0, sticky='W')
+
+        # Changing main frames buttons
+        param_frame_button = ttk.Button(menu_frame, text="Parameters",
+                                        command=lambda: controller.show_frame(Parameters))
+        param_frame_button.grid(row=0, column=0, padx=5, pady=5)
+
+        graph_frame_button = ttk.Button(menu_frame, text="Function Flow Graph",
+                                        command=lambda: controller.show_frame(FunctionFlowGraph))
+        graph_frame_button.grid(row=0, column=1, padx=5, pady=5)
+
+        matrices_frame_button = ttk.Button(menu_frame, text='Distance matrix',
+                                           command=lambda: controller.show_frame(DistanceMatrix))
+        matrices_frame_button.grid(row=0, column=2, padx=5, pady=5)
+
+        matrices_frame_button = ttk.Button(menu_frame, text='Flow matrix',
+                                           command=lambda: controller.show_frame(FlowMatrix))
+        matrices_frame_button.grid(row=0, column=3, padx=5, pady=5)
 
         # Flow matrix
-        flow_mat_txt = ttk.Label(self, text='Flow matrix:')
-        flow_mat_txt.grid(row=3, column=0, columnspan=3,
+        flow_mat_txt = ttk.Label(matrices_frame, text='Flow matrix:')
+        flow_mat_txt.grid(row=0, column=0,
                           sticky='W', padx=5, pady=5)
 
-        self.flow_mat_image = ttk.Label(self)
+        self.flow_mat_image = ttk.Label(matrices_frame)
         self.flow_mat_image.grid(
-            row=4, column=0, columnspan=3, sticky='W', padx=5, pady=5)
+            row=1, column=0, sticky='W', padx=5, pady=5)
 
     def display_matrix(self, label: ttk.Label, data, text):
         """
@@ -557,10 +658,12 @@ distance_matrix_test = [[np.inf, 1, 1000, 1000, 1000, 1000],
 
 distance_matrix_test = np.array(distance_matrix_test)
 
+
 def main():
 
     app = tkinterApp()
     app.mainloop()
+
 
 if __name__ == "__main__":
     main()
