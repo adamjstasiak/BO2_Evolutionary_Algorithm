@@ -266,7 +266,7 @@ class Parameters(tk.Frame):
         mi_population_type.grid(row=0, column=0, padx=5, pady=2)
 
         mi_plus_lambda_population_type = ttk.Radiobutton(
-            population_type_frame, text='mi + lambda', variable=self.population_type, value='mi + lambda')
+            population_type_frame, text='mi + lambda', variable=self.population_type, value='mi+lambda')
         mi_plus_lambda_population_type.grid(row=0, column=1, padx=5, pady=2)
 
         # Start
@@ -447,7 +447,7 @@ class Parameters(tk.Frame):
             mut_probability = 0
 
         best_individual, current_min_value, min_values_list, operand_type, crossover_type, mutation_type = genetic_algorithm(self.distance_matrix, self.flow_matrix, factory_list, self.population_size.get(),
-                                                                                                                             self.selection_size.get(), self.number_of_generations.get(), selection_type=self.selection.get(),
+                                                                                                                             self.selection_size.get(), self.number_of_generations.get(),populatian_type=self.population_type, selection_type=self.selection.get(),
                                                                                                                              crossover_probability=self.crossover_percentage.get(), mutation_probability=self.mutation_percentage.get(),
                                                                                                                              pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
                                                                                                                              ox_probability=self.OX_crossover.get(), swap_probability=self.swap_mutation.get(),

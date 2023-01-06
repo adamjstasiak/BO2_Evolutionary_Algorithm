@@ -1,11 +1,8 @@
 import random
-
 import function as fun
 import numpy as np
-from copy import copy
 
-
-def genetic_algorithm(distance, flow, factory_list, population_size, selection_size, number_of_generation, selection_type='ranking', crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1, ox_probability=1, swap_probability=1, inversion_probability=1, scramble_probability=1, stop_count=80):
+def genetic_algorithm(distance, flow, factory_list, population_size, selection_size, number_of_generation,populatian_type='mi+lambda', selection_type='ranking', crossover_probability=1, mutation_probability=1, pmx_probability=1, cx_probability=1, ox_probability=1, swap_probability=1, inversion_probability=1, scramble_probability=1, stop_count=80):
     current_generation = 0
     fitness_table = []
     min_values_list = []
@@ -20,20 +17,17 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
     current_min_value = min(fitness_table)
     best_individual_idx = fitness_table.index(current_min_value)
     best_individual = population[best_individual_idx]
-#    print(best_individual, current_min_value)
     min_values_list.append(current_min_value)
-    # if current_min_value <= min_value:
-    #     return best_individual, current_min_value, min_values_list
     while current_generation < number_of_generation:
-        fitness_table_for_current_population = []
-        selected_population = population
+        new_population = []
+        fitness_table_for_current_population = []n
         if selection_type == 'roulette':
             selected_population = fun.selection(
                 population, distance, flow, selection_size)
         elif selection_type == 'ranking':
             selected_population = fun.ranking_selection(
                 population, distance, flow, selection_size)
-        while len(selected_population) != len(population):
+        while len(new_population) != len(population):
             genetic_operation = random.choices(list(fun.Operations), weights=[
                                                mutation_probability, crossover_probability])
             genetic_operation = genetic_operation[0]
@@ -61,9 +55,9 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
                         selected_population[par1_idx], selected_population[par2_idx])
                     crossover_type.append('OX')
                     mutation_type.append(np.NaN)
-                selected_population.append(children_1)
-                if len(selected_population) != len(population):
-                    selected_population.append(children_2)
+                new_population.append(children_1)
+                if len(new_population) != len(population):
+                    new_population.append(children_2)
             elif genetic_operation == fun.Operations.mutation:
                 operand_type.append('mutation')
                 mutate_idx = np.random.randint(0, len(selected_population)-1)
@@ -75,22 +69,25 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
                         selected_population[mutate_idx])
                     mutation_type.append('Swap')
                     crossover_type.append(np.NaN)
-                    selected_population[mutate_idx] = children
                 elif mut_type == fun.Mutations.inversion:
                     children = fun.inversion_mutation(
                         selected_population[mutate_idx])
-                    selected_population[mutate_idx] = children
                     mutation_type.append('Inversion')
                     crossover_type.append(np.NaN)
                 elif mut_type == fun.Mutations.scramble:
                     children = fun.scramble_mutation(
                         selected_population[mutate_idx])
-                    selected_population[mutate_idx] = children
                     mutation_type.append('Scramble')
                     crossover_type.append(np.NaN)
+                if populatian_type == 'mi':
+                    new_population.append(children)
+                if populatian_type == 'mi+lambda':
+                    selected_population[mutate_idx] = children
             else:
                 pass
-
+            if populatian_type == 'mi+lambda':
+                if len(new_population) == (len(population_size)-len(selected_population)):
+                    new_population.extend(selected_population)
         for i in range(len(selected_population)):
             fitness_table_for_current_population.append(
                 fun.operative_function(selected_population[i], distance, flow))
@@ -105,7 +102,7 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
             best_individual = selected_population[idx_selected]
         if counter == stop_count:
             break
-        population = selected_population
+        population = new_population
         current_generation += 1
         min_values_list.append(current_min_value)
     return best_individual, current_min_value, min_values_list,operand_type,crossover_type,mutation_type
