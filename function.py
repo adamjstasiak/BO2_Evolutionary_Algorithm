@@ -131,18 +131,23 @@ def selection(population, distance, flow, selection_size):  # DONE
 
 
 def ranking_selection(population, distance, flow, selection_size):
-    selection_size = int(len(population)*selection_size/100)
-    fit_dict = {operative_function(
-        el, distance, flow): el for el in population}
-    order_dict = sorted(fit_dict.items())
+    """Ranking type selection
+    Population - list with our individuals to select
+    Distances - matrix with distance between parcels
+    Flow - matrix with flows between each factory
+    Selection size - number od individuals we want to select.
+    Return:
+        List with selected individuals"""
     selected_population = []
+    selection_size = int(len(population) * (selection_size/100))
+    fitness_list = [(operative_function(individual,distance,flow),individual) for individual in population]
+    fitness_list.sort()
     i = 0
-    for key, value in order_dict:
-        i += 1
-        selected_population.append(value)
-        if i == selection_size:
-            break
+    while i != selection_size:
+        selected_population.append(fitness_list[i][1])
+        i+=1
     return selected_population
+
 
 
 def swap_mutation(solution):

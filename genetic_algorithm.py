@@ -86,8 +86,8 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
             else:
                 pass
             if populatian_type == 'mi+lambda':
-                if len(new_population) == (len(population_size)-len(selected_population)):
-                    new_population.extend(selected_population)
+                if len(new_population) == (len(population)-len(selected_population)):
+                    new_population = new_population + selected_population
             if len(new_population) == len(population):
                 break
         for i in range(len(selected_population)):
