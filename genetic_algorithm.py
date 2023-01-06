@@ -20,7 +20,7 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
     min_values_list.append(current_min_value)
     while current_generation < number_of_generation:
         new_population = []
-        fitness_table_for_current_population = []n
+        fitness_table_for_current_population = []
         if selection_type == 'roulette':
             selected_population = fun.selection(
                 population, distance, flow, selection_size)

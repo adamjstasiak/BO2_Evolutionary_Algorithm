@@ -1,6 +1,4 @@
-import random
 from enum import Enum
-
 import numpy as np
 from random import sample, choices
 from copy import copy
@@ -51,7 +49,7 @@ def operative_function(solution: list, distance_matrix: np.array, flow_matrix: n
                         pass
                     else:
                         sum += distance_matrix[idx_i,
-                                               idx_j] * flow_matrix[el_i, el_j]
+                            idx_j] * flow_matrix[el_i, el_j]
 
     return sum/2  # every distance and flow is added two times, so return divided by 2
 
