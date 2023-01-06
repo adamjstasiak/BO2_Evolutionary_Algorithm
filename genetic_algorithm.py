@@ -27,7 +27,7 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
         elif selection_type == 'ranking':
             selected_population = fun.ranking_selection(
                 population, distance, flow, selection_size)
-        while len(new_population) != len(population):
+        while True:
             genetic_operation = random.choices(list(fun.Operations), weights=[
                                                mutation_probability, crossover_probability])
             genetic_operation = genetic_operation[0]
@@ -88,6 +88,8 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
             if populatian_type == 'mi+lambda':
                 if len(new_population) == (len(population_size)-len(selected_population)):
                     new_population.extend(selected_population)
+            if len(new_population) == len(population):
+                break
         for i in range(len(selected_population)):
             fitness_table_for_current_population.append(
                 fun.operative_function(selected_population[i], distance, flow))
