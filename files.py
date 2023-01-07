@@ -130,7 +130,7 @@ def genetics_operation_analisys(path_1,path_2):
         mutation_delta.append(('Inversion',inversion_delta))
         mutation_value.append(('Swap',swap_value))
         mutation_delta.append(('Swap',swap_delta))  
-    return 
+    return crossover_value,crossover_delta,mutation_value,mutation_delta
 
 
 
