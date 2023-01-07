@@ -45,16 +45,28 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
                         selected_population[par1_idx], selected_population[par2_idx])
                     crossover_type.append('PMX')
                     mutation_type.append(np.NaN)
+                    if fun.operative_function(children_2,distance,flow) > fun.operative_function(children_1,distance,flow):
+                        bufor = children_1
+                        children_1 = children_2
+                        children_2 = bufor 
                 elif cross_type == fun.Crossover.cx:
                     children_1, children_2 = fun.cx(
                         selected_population[par1_idx], selected_population[par2_idx])
                     crossover_type.append('CX')
                     mutation_type.append(np.NaN)
+                    if fun.operative_function(children_2,distance,flow) > fun.operative_function(children_1,distance,flow):
+                        bufor = children_1
+                        children_1 = children_2
+                        children_2 = bufor 
                 elif cross_type == fun.Crossover.ox:
                     children_1, children_2 = fun.ox(
                         selected_population[par1_idx], selected_population[par2_idx])
                     crossover_type.append('OX')
                     mutation_type.append(np.NaN)
+                    if fun.operative_function(children_2,distance,flow) > fun.operative_function(children_1,distance,flow):
+                        bufor = children_1
+                        children_1 = children_2
+                        children_2 = bufor 
                 new_population.append(children_1)
                 if len(new_population) != len(population):
                     new_population.append(children_2)
