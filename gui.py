@@ -446,7 +446,7 @@ class Parameters(tk.Frame):
         else:
             mut_probability = 0
 
-        best_individual, current_min_value, min_values_list, operand_type, crossover_type, mutation_type = genetic_algorithm(self.distance_matrix, self.flow_matrix, factory_list, self.population_size.get(),
+        best_individual, current_min_value, min_values_list, operand_type, crossover_type, mutation_type,crossover_value,mutation_value = genetic_algorithm(self.distance_matrix, self.flow_matrix, factory_list, self.population_size.get(),
                                                                                                                              self.selection_size.get(), self.number_of_generations.get(),populatian_type=self.population_type, selection_type=self.selection.get(),
                                                                                                                              crossover_probability=self.crossover_percentage.get(), mutation_probability=self.mutation_percentage.get(),
                                                                                                                              pmx_probability=self.PMX_crossover.get(), cx_probability=self.CX_crossover.get(),
@@ -454,10 +454,19 @@ class Parameters(tk.Frame):
                                                                                                                              inversion_probability=self.inverse_mutation.get(), scramble_probability=self.scramble_mutation.get(), stop_count=self.stop_count.get())
 
         data = [operand_type, crossover_type, mutation_type]
+        data_1 = crossover_value
+        data_2 = mutation_value
         files.clearing_csv('dataframe.csv')
-        files.clearing_csv('genetics_operation.csv')
+        files.clearing_csv('genetics_operation.csv') 
+        files.clearing_csv('crossover_value.csv')
+        files.clearing_csv('mutation_value.csv')
         files.export_to_csv_values(min_values_list, 'dataframe.csv')
         files.export_to_csv_characteristics(data, 'genetics_operation.csv')
+
+       
+        
+        files.export_to_csv_operand_values(data_1, 'crossover_value.csv')
+        files.export_to_csv_operand_values(data_2, 'mutation_value.csv')
 
         graph_page.plot_dataframe(graph_page.canvas, graph_page.ax1,
                                   graph_page.ax2, graph_page.ax3, graph_page.ax4)  # df
@@ -469,7 +478,7 @@ class Parameters(tk.Frame):
 
         if len(self.distance_matrix) == len(self.flow_matrix):
             self.solution.insert('end', 'Solution: %s' % str(
-                str(best_individual) + '  sum: ' + str(current_min_value)))
+                str(best_individual) + '  Value: ' + str(current_min_value)))
 
 # second window frame FunctionFlowGraph
 

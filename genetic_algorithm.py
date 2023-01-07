@@ -9,6 +9,8 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
     operand_type = []
     crossover_type = []
     mutation_type = []
+    crossover_value = []
+    mutation_value = []
     counter = 0
     population = fun.generate_population(factory_list, population_size)
     for i in range(len(population)):
@@ -49,6 +51,7 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
                         bufor = children_1
                         children_1 = children_2
                         children_2 = bufor 
+                    crossover_value.append(('PMX',fun.operative_function(children_1,distance,flow),current_min_value-fun.operative_function(children_1,distance,flow)))
                 elif cross_type == fun.Crossover.cx:
                     children_1, children_2 = fun.cx(
                         selected_population[par1_idx], selected_population[par2_idx])
@@ -58,6 +61,7 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
                         bufor = children_1
                         children_1 = children_2
                         children_2 = bufor 
+                    crossover_value.append(('CX',fun.operative_function(children_1,distance,flow),current_min_value-fun.operative_function(children_1,distance,flow)))
                 elif cross_type == fun.Crossover.ox:
                     children_1, children_2 = fun.ox(
                         selected_population[par1_idx], selected_population[par2_idx])
@@ -67,6 +71,7 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
                         bufor = children_1
                         children_1 = children_2
                         children_2 = bufor 
+                    crossover_value.append(('OX',fun.operative_function(children_1,distance,flow),current_min_value-fun.operative_function(children_1,distance,flow)))
                 new_population.append(children_1)
                 if len(new_population) != len(population):
                     new_population.append(children_2)
@@ -81,16 +86,19 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
                         selected_population[mutate_idx])
                     mutation_type.append('Swap')
                     crossover_type.append(np.NaN)
+                    mutation_value.append(('Swap',fun.operative_function(children,distance,flow),current_min_value-fun.operative_function(children,distance,flow)))
                 elif mut_type == fun.Mutations.inversion:
                     children = fun.inversion_mutation(
                         selected_population[mutate_idx])
                     mutation_type.append('Inversion')
                     crossover_type.append(np.NaN)
+                    mutation_value.append(('Inversion',fun.operative_function(children,distance,flow),current_min_value-fun.operative_function(children,distance,flow)))
                 elif mut_type == fun.Mutations.scramble:
                     children = fun.scramble_mutation(
                         selected_population[mutate_idx])
                     mutation_type.append('Scramble')
                     crossover_type.append(np.NaN)
+                    mutation_value.append(('Scramble',fun.operative_function(children,distance,flow),current_min_value-fun.operative_function(children,distance,flow)))
                 if populatian_type == 'mi':
                     new_population.append(children)
                 if populatian_type == 'mi+lambda':
@@ -119,4 +127,4 @@ def genetic_algorithm(distance, flow, factory_list, population_size, selection_s
         population = new_population
         current_generation += 1
         min_values_list.append(current_min_value)
-    return best_individual, current_min_value, min_values_list,operand_type,crossover_type,mutation_type
+    return best_individual, current_min_value, min_values_list,operand_type,crossover_type,mutation_type,crossover_value,mutation_value

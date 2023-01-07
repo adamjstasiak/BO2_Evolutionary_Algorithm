@@ -1,5 +1,17 @@
+import tkinter as tk
+from tkinter import ttk
 import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
+from genetic_algorithm import genetic_algorithm
+import function as fun
+import files
+import pandas as pd
+from copy import copy
+import dataframe_image as dfi
+from PIL import Image, ImageTk
+
 
 df = pd.read_csv(r'dataframe.csv')
 
@@ -24,8 +36,8 @@ count_crossover = df.groupby('Operand type').count()
 
 count_col = count_crossover.columns
 
-print(count_col)
-print(len(count_col))
+# print(count_col)
+# print(len(count_col))
 count_cross = df.groupby('Crossover').count()
 count_mutation = df.groupby('Mutation').count()
 # print(count_crossover)
@@ -34,12 +46,18 @@ count_mutation = df.groupby('Mutation').count()
 
 
 idx_mut = count_mutation.index
-print(idx_mut)
+# print(idx_mut)
 
 dfcount = df.count()
 
 # print(dfcount)
 def genetetic_operation_analisys(path):
+     cx_amount = 0
+     ox_amount = 0
+     pmx_amount = 0
+     scramble_amount = 0
+     swap_amount = 0
+     inversion_amount = 0
      df = pd.read_csv(path)
      count_operand = df.groupby('Operand type').count()
      count_cross = df.groupby('Crossover').count()
@@ -64,3 +82,18 @@ def genetetic_operation_analisys(path):
              swap_amount = count_mutation['Operand type'][i]
      return crossover_amount,mutation_amount,cx_amount,ox_amount,pmx_amount,inversion_amount,scramble_amount,swap_amount
 
+# distance,flow = fun.create_random_data_matrix(6,6)
+
+# fabric_list = fun.create_fabric_list(6)
+# population = fun.generate_population(fabric_list,20)
+
+# selection = fun.ranking_selection(population,distance,flow,50)
+
+# print(selection)
+# print(len(selection))
+# best_individual, current_min_value, min_values_list, operand_type, crossover_type, mutation_type = genetic_algorithm(distance,flow,fabric_list, 40,20, 50,crossover_probability=70,mutation_probability=30,pmx_probability=0,cx_probability=1,ox_probability=0)
+# df_crossover = pd.read_csv('mutation_value.csv')
+
+# df_group = df_crossover.groupby('Operand').mean()
+
+# print(df_group)
