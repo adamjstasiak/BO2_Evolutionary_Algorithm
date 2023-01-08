@@ -92,8 +92,8 @@ def genetetic_operation_analisys(path):
 # print(selection)
 # print(len(selection))
 # best_individual, current_min_value, min_values_list, operand_type, crossover_type, mutation_type = genetic_algorithm(distance,flow,fabric_list, 40,20, 50,crossover_probability=70,mutation_probability=30,pmx_probability=0,cx_probability=1,ox_probability=0)
-# df_crossover = pd.read_csv('mutation_value.csv')
+df_crossover = pd.read_csv('mutation_value.csv')
 
-# df_group = df_crossover.groupby('Operand').mean()
+df_group = df_crossover.groupby('Operand').min()
 
 # print(df_group)

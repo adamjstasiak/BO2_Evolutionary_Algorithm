@@ -33,7 +33,7 @@ class tkinterApp(tk.Tk):
 
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (Parameters, FunctionFlowGraph, DistanceMatrix, FlowMatrix):
+        for F in (Parameters, FunctionFlowGraph,FunctionValueGraph ,DistanceMatrix, FlowMatrix):
             frame = F(container, self)
             # initializing frame of that object from
             # Parameters, FunctionFlowGraph, DistanceMatrix, FlowMatrix respectively with
@@ -72,13 +72,18 @@ class Parameters(tk.Frame):
                                  command=lambda: controller.show_frame(FunctionFlowGraph))
         graph_frame.grid(row=0, column=1, padx=5, pady=5)
 
+        graph_frame_value = ttk.Button(menu_frame,text="Operand Values Graphs",
+                                command=lambda: controller.show_frame(FunctionValueGraph))
+        graph_frame_value.grid(row=0, column=2, padx=5, pady=5)
+
+
         matrices_frame = ttk.Button(menu_frame, text='Distance matrix',
                                     command=lambda: controller.show_frame(DistanceMatrix))
-        matrices_frame.grid(row=0, column=2, padx=5, pady=5)
+        matrices_frame.grid(row=0, column=3, padx=5, pady=5)
 
         matrices_frame_button = ttk.Button(menu_frame, text='Flow matrix',
                                            command=lambda: controller.show_frame(FlowMatrix))
-        matrices_frame_button.grid(row=0, column=3, padx=5, pady=5)
+        matrices_frame_button.grid(row=0, column=4, padx=5, pady=5)
 
         # Main parameters frame
         main_frame = tk.Frame(self)
@@ -433,6 +438,7 @@ class Parameters(tk.Frame):
         # graph_page
         graph_page = self.controller.get_page(FunctionFlowGraph)
 
+        graph_page_1 = self.controller.get_page(FunctionValueGraph)
         factory_list = fun.create_fabric_list(len(self.flow_matrix))
 
         cross_probability = 1
@@ -471,6 +477,8 @@ class Parameters(tk.Frame):
         graph_page.plot_dataframe(graph_page.canvas, graph_page.ax1,
                                   graph_page.ax2, graph_page.ax3, graph_page.ax4)  # df
 
+        graph_page_1.plot_graphs(graph_page_1.canvas,graph_page_1.ax1,graph_page_1.ax2,graph_page_1.ax3,graph_page_1.ax4,graph_page_1.ax5,graph_page_1.ax6)
+
         self.paint_factories(best_individual)
 
         if self.solution.size() > 4:
@@ -497,13 +505,17 @@ class FunctionFlowGraph(tk.Frame):
                                  command=lambda: controller.show_frame(FunctionFlowGraph))
         graph_frame.grid(row=0, column=1, padx=5, pady=5)
 
+        graph_frame_value = ttk.Button(self,text="Operand Values Graphs",
+                                command=lambda: controller.show_frame(FunctionValueGraph))
+        graph_frame_value.grid(row=0, column=2, padx=5, pady=5)
+
         matrices_frame = ttk.Button(self, text='Distance matrix',
                                     command=lambda: controller.show_frame(DistanceMatrix))
-        matrices_frame.grid(row=0, column=2, padx=5, pady=5)
+        matrices_frame.grid(row=0, column=3, padx=5, pady=5)
 
         matrices_frame_button = ttk.Button(self, text='Flow matrix',
                                            command=lambda: controller.show_frame(FlowMatrix))
-        matrices_frame_button.grid(row=0, column=3, padx=4, pady=5)
+        matrices_frame_button.grid(row=0, column=4, padx=4, pady=5)
 
         s = ttk.Style()
         s.configure('My.TFrame', background='green')
@@ -512,7 +524,8 @@ class FunctionFlowGraph(tk.Frame):
         self.plot_frame.grid(row=1, column=0, padx=5, pady=5, columnspan=2000)
 
         # Space for graph
-        figure = plt.Figure(figsize=(12, 6), dpi=100)
+        figure = plt.Figure(figsize=(13, 7), dpi=100)
+        figure.tight_layout()
         ax1 = figure.add_subplot(2, 3, 1)
         ax2 = figure.add_subplot(2, 3, 2)
         ax3 = figure.add_subplot(2, 3, 3)
@@ -534,16 +547,130 @@ class FunctionFlowGraph(tk.Frame):
         df = pd.read_csv(r'dataframe.csv')
         ax4.plot(df.index, df.value)
         ax4.set_title("Algorithm Flow", fontsize=10)
+        ax4.set_xlabel("Generation")
+        ax4.set_ylabel("Value")
         ax4.grid()
         crossover_amount, mutation_amount, cx_amount, ox_amount, pmx_amount, inversion_amount, scramble_amount, swap_amount = files.genetetic_operation_analisys(
             'genetics_operation.csv')
-        ax1.bar(['Crossover', 'Mutation'], [crossover_amount, mutation_amount])
-        ax1.set_title("Genetics operand")
-        ax2.bar(['CX', 'OX', 'PMX'], [cx_amount, ox_amount, pmx_amount])
-        ax2.set_title("Crossover type")
-        ax3.bar(['Swap', 'Scramble', 'Inversion'], [
-                swap_amount, scramble_amount, inversion_amount])
-        ax3.set_title("Mutation type")
+        operand_labels = ['Crossover', 'Mutation']
+        operand_amount = [crossover_amount, mutation_amount]
+        crossover_labels = ['CX', 'OX', 'PMX']
+        mutation_labels = ['Swap', 'Scramble', 'Inversion']
+        cross_amount = [cx_amount, ox_amount, pmx_amount]
+        mut_amount = [swap_amount, scramble_amount, inversion_amount]
+        ax1.bar(operand_labels,operand_amount)
+        for i in range(len(operand_labels)):
+            ax1.text(i,operand_amount[i],round(operand_amount[i],2))
+        ax1.set(ylim=(0,max(operand_amount)+max(operand_amount)/10))
+        ax1.set_title("Amount by genetics operand")
+        ax1.set_ylabel("Amount")
+        ax2.bar(crossover_labels, cross_amount)
+        for i in range(len(crossover_labels)):
+            ax2.text(i,cross_amount[i],round(cross_amount[i],2))
+        ax2.set(ylim=(0,max(cross_amount)+max(cross_amount)/10))
+        ax2.set_title("Amount by crossover type")
+        ax2.set_ylabel("Amount")
+        ax3.bar(mutation_labels, mut_amount)
+        for i in range(len(mutation_labels)):
+            ax3.text(i,mut_amount[i],round(mut_amount[i],2))
+        ax3.set(ylim=(0,max(mut_amount)+max(mut_amount)/10))
+        ax3.set_title("Amount by mutation type")
+        ax3.set_ylabel("Amount")
+        canvas.draw()
+class FunctionValueGraph(tk.Frame):
+    def __init__(self,parent,controller):
+        tk.Frame.__init__(self,parent)
+        self.controller = controller
+
+        param_frame = ttk.Button(self, text="Parameters",
+                                    command=lambda: controller.show_frame(Parameters))
+        param_frame.grid(row=0, column=0, padx=5, pady=5)
+
+        graph_frame = ttk.Button(self, text="Function Flow Graph",
+                                command=lambda: controller.show_frame(FunctionFlowGraph))
+        graph_frame.grid(row=0, column=1, padx=5, pady=5)
+
+        graph_frame_value = ttk.Button(self,text="Operand Values Graphs",
+                                command=lambda: controller.show_frame(FunctionValueGraph))
+        graph_frame_value.grid(row=0, column=2, padx=5, pady=5)
+
+        matrices_frame = ttk.Button(self, text='Distance matrix',
+                                        command=lambda: controller.show_frame(DistanceMatrix))
+        matrices_frame.grid(row=0, column=3, padx=5, pady=5)
+
+        matrices_frame_button = ttk.Button(self, text='Flow matrix',
+                                            command=lambda: controller.show_frame(FlowMatrix))
+        matrices_frame_button.grid(row=0, column=4, padx=4, pady=5)
+
+
+        s = ttk.Style()
+        s.configure('My.TFrame',background='green')
+        self.plot_frame = ttk.Frame(self,style='My.TFrame',width=20,height=20)
+        self.plot_frame.grid(row=1, column=0, padx=5, pady=5, columnspan=2000)
+
+        figure = plt.Figure(figsize=(13,7),dpi=100)
+        ax1 = figure.add_subplot(2,3,1)
+        ax2 = figure.add_subplot(2,3,2)
+        ax3 = figure.add_subplot(2,3,3)
+        ax4 = figure.add_subplot(2,3,4)
+        ax5 = figure.add_subplot(2,3,5)
+        ax6 = figure.add_subplot(2,3,6)
+        self.ax1 = figure.add_axes(ax1)
+        self.ax2 = figure.add_axes(ax2)
+        self.ax3 = figure.add_axes(ax3)
+        self.ax4 = figure.add_axes(ax4)
+        self.ax5 = figure.add_axes(ax5)
+        self.ax6 = figure.add_axes(ax6)
+        self.canvas = FigureCanvasTkAgg(figure, self.plot_frame)
+
+        self.canvas.get_tk_widget().grid()
+        self.canvas.draw()
+
+
+    def plot_graphs(self,canvas,ax1, ax2, ax3, ax4,ax5,ax6):
+        ax1.clear()
+        ax2.clear()
+        ax3.clear()
+        ax4.clear() 
+        ax5.clear()
+        ax6.clear()
+        cross_labels,mut_labels,crossover_best,crossover_value,crossover_delta,mutation_best,mutation_value,mutation_delta = files.genetics_operation_value_analisys('crossover_value.csv','mutation_value.csv')
+        ax1.bar(cross_labels,crossover_best)
+        for i in range(len(cross_labels)):
+            ax1.text(i,crossover_best[i],round(crossover_best[i],2))
+        ax1.set_title("Crossover child best values")
+        ax1.set(ylim=(0,max(crossover_best)+max(crossover_best)/10))
+        ax1.set_ylabel('Value')
+        ax2.bar(cross_labels,crossover_value)
+        for i in range(len(cross_labels)):
+            ax2.text(i,crossover_value[i],round(crossover_value[i],2))
+        ax2.set_title("Crossover child mean values")
+        ax2.set(ylim=(0,max(crossover_value)+max(crossover_value)/10))
+        ax2.set_ylabel('Value')
+        ax3.bar(cross_labels,crossover_delta)
+        for i in range(len(cross_labels)):
+            ax3.text(i,crossover_delta[i],round(crossover_delta[i],2))
+        ax3.set_title("Crossover child mean delta")
+        ax3.set(ylim=(0,max(crossover_value)+max(crossover_value)/10))
+        ax3.set_ylabel('Delta')
+        ax4.bar(mut_labels,mutation_best)
+        for i in range(len(mut_labels)):
+            ax4.text(i,mutation_best[i],round(mutation_best[i],2))
+        ax4.set_title("Mutation child best values")
+        ax4.set(ylim=(0,max(mutation_best)+max(mutation_best)/10))
+        ax4.set_ylabel('Value')
+        ax5.bar(mut_labels,mutation_value)
+        for i in range(len(mut_labels)):
+            ax5.text(i,mutation_value[i],round(mutation_value[i],2))
+        ax5.set_title("Mutation child mean values")
+        ax5.set(ylim=(0,max(mutation_value)+max(mutation_value)/10))
+        ax5.set_ylabel('Value')
+        ax6.bar(mut_labels,mutation_delta)
+        for i in range(len(mut_labels)):
+            ax6.text(i,mutation_delta[i],round(mutation_delta[i],2))
+        ax6.set_title("Mutation child mean delta")
+        ax6.set(ylim=(0,max(mutation_delta)+max(mutation_delta)/10))
+        ax6.set_ylabel('Delta')
         canvas.draw()
 
 
@@ -568,13 +695,17 @@ class DistanceMatrix(tk.Frame):
                                         command=lambda: controller.show_frame(FunctionFlowGraph))
         graph_frame_button.grid(row=0, column=1, padx=5, pady=5)
 
+        graph_frame_value = ttk.Button(menu_frame,text="Operand Values Graphs",
+                                command=lambda: controller.show_frame(FunctionValueGraph))
+        graph_frame_value.grid(row=0, column=2, padx=5, pady=5)
+
         matrices_frame_button = ttk.Button(menu_frame, text='Distance matrix',
                                            command=lambda: controller.show_frame(DistanceMatrix))
-        matrices_frame_button.grid(row=0, column=2, padx=5, pady=5)
+        matrices_frame_button.grid(row=0, column=3, padx=5, pady=5)
 
         matrices_frame_button = ttk.Button(menu_frame, text='Flow matrix',
                                            command=lambda: controller.show_frame(FlowMatrix))
-        matrices_frame_button.grid(row=0, column=3, padx=5, pady=5)
+        matrices_frame_button.grid(row=0, column=4, padx=5, pady=5)
 
         # Distance matrix
         dist_mat_txt = ttk.Label(matrices_frame, text='Distance matrix:')
@@ -620,13 +751,17 @@ class FlowMatrix(tk.Frame):
                                         command=lambda: controller.show_frame(FunctionFlowGraph))
         graph_frame_button.grid(row=0, column=1, padx=5, pady=5)
 
+        graph_frame_value = ttk.Button(menu_frame,text="Operand Values Graphs",
+                                command=lambda: controller.show_frame(FunctionValueGraph))
+        graph_frame_value.grid(row=0, column=2, padx=5, pady=5)
+
         matrices_frame_button = ttk.Button(menu_frame, text='Distance matrix',
                                            command=lambda: controller.show_frame(DistanceMatrix))
-        matrices_frame_button.grid(row=0, column=2, padx=5, pady=5)
+        matrices_frame_button.grid(row=0, column=3, padx=5, pady=5)
 
         matrices_frame_button = ttk.Button(menu_frame, text='Flow matrix',
                                            command=lambda: controller.show_frame(FlowMatrix))
-        matrices_frame_button.grid(row=0, column=3, padx=5, pady=5)
+        matrices_frame_button.grid(row=0, column=4, padx=5, pady=5)
 
         # Flow matrix
         flow_mat_txt = ttk.Label(matrices_frame, text='Flow matrix:')

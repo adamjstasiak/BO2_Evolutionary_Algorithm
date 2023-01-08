@@ -46,6 +46,12 @@ def clearing_csv(filename):
 
 
 def genetetic_operation_analisys(path):
+    cx_amount = 0
+    ox_amount = 0
+    pmx_amount = 0
+    scramble_amount = 0
+    swap_amount = 0
+    inversion_amount = 0
     df = pd.read_csv(path)
     count_operand = df.groupby('Operand type').count()
     count_cross = df.groupby('Crossover').count()
@@ -70,67 +76,86 @@ def genetetic_operation_analisys(path):
              swap_amount = count_mutation['Operand type'][i]
     return crossover_amount,mutation_amount,cx_amount,ox_amount,pmx_amount,inversion_amount,scramble_amount,swap_amount
 
-def genetics_operation_analisys(path_1,path_2):
+def genetics_operation_value_analisys(path_1,path_2):
     df_crossover = pd.read_csv(path_1)
     df_mutation = pd.read_csv(path_2)
     df_crossover_mean = df_crossover.groupby('Operand').mean()
     df_mutation_mean = df_mutation.groupby('Operand').mean()
+    df_crossover_min = df_crossover.groupby('Operand').min()
+    df_mutation_min = df_mutation.groupby('Operand').min()
     mutation_value = []
     crossover_value = []
     mutation_delta = []
     crossover_delta = []
+    crossover_best = []
+    mutation_best = []
+    cross_labels = ['CX','OX','PMX']
+    mut_labels = ['Scramble','Inversion','Swap']
     cx_value = 0
     ox_value = 0
     pmx_value = 0
     cx_delta = 0
     ox_delta = 0
     pmx_delta = 0
+    cx_min = 0
+    ox_min = 0
+    pmx_min = 0
     swap_value  = 0
     scramble_value = 0
     inversion_value = 0
     swap_delta  = 0
     scramble_delta = 0
     inversion_delta = 0
+    swap_min = 0
+    inversion_min = 0
+    scramble_min = 0
     idx_mut = df_mutation_mean.index
     idx_cross = df_crossover_mean.index
     for i in range(len(idx_cross)):
         if idx_cross[i] == 'CX':
             cx_value = df_crossover_mean['Value'][i]
-            cx_delta = df_crossover_mean['Delta'][i]
+            cx_delta = abs(df_crossover_mean['Delta'][i])
+            cx_min  = df_crossover_min['Value'][i]
         if idx_cross[i] == 'OX':
             ox_value = df_crossover_mean['Value'][i]
-            ox_delta = df_crossover_mean['Delta'][i]
-            
+            ox_delta = abs(df_crossover_mean['Delta'][i])
+            ox_min = df_crossover_min['Value'][i]
         if idx_cross[i] == 'PMX':
             pmx_value = df_crossover_mean['Value'][i]
-            pmx_delta = df_crossover_mean['Delta'][i]
-            
+            pmx_delta = abs(df_crossover_mean['Delta'][i])
+            pmx_min = df_crossover_min['Value'][i]
     for i in range(len(idx_mut)):
         if idx_mut[i] == 'Scramble':
             scramble_value = df_mutation_mean['Value'][i]
-            scramble_delta = df_crossover_mean['Delta'][i]
-            
+            scramble_delta = abs(df_mutation_mean['Delta'][i])
+            scramble_min = df_mutation_min['Value'][i]
         if idx_mut[i] == 'Inversion':
             inversion_value = df_mutation_mean['Value'][i]
-            inversion_delta = df_crossover_mean['Delta'][i]
-            
+            inversion_delta = abs(df_mutation_mean['Delta'][i])
+            inversion_min = df_mutation_min['Value'][i]
         if idx_mut[i] == 'Swap':
             swap_value = df_mutation_mean['Value'][i]
-            swap_delta = df_crossover_mean['Delta'][i]
-            
-        crossover_value.append(('CX',cx_value))
-        crossover_delta.append(('CX',cx_delta))
-        crossover_value.append(('OX',ox_value))
-        crossover_delta.append(('OX',ox_delta))
-        crossover_value.append(('PMX',pmx_value))
-        crossover_delta.append(('PX',pmx_delta))
-        mutation_value.append(('Scramble',scramble_value))
-        mutation_delta.append(('Scramble',scramble_delta))
-        mutation_value.append(('Inversion',inversion_value))
-        mutation_delta.append(('Inversion',inversion_delta))
-        mutation_value.append(('Swap',swap_value))
-        mutation_delta.append(('Swap',swap_delta))  
-    return crossover_value,crossover_delta,mutation_value,mutation_delta
+            swap_delta = abs(df_mutation_mean['Delta'][i]) 
+            swap_min = df_mutation_min['Value'][i]
+    crossover_value.append(cx_value)
+    crossover_delta.append(cx_delta)
+    crossover_best.append(cx_min)
+    crossover_value.append(ox_value)
+    crossover_delta.append(ox_delta)
+    crossover_best.append(ox_min)
+    crossover_value.append(pmx_value)
+    crossover_delta.append(pmx_delta)
+    crossover_best.append(pmx_min)
+    mutation_value.append(scramble_value)
+    mutation_delta.append(scramble_delta)
+    mutation_best.append(scramble_min)
+    mutation_value.append(inversion_value)
+    mutation_delta.append(inversion_delta)
+    mutation_best.append(inversion_min)
+    mutation_value.append(swap_value)
+    mutation_delta.append(swap_delta)
+    mutation_best.append(swap_min)
+    return cross_labels, mut_labels,crossover_best,crossover_value,crossover_delta,mutation_best,mutation_value,mutation_delta
 
 
 
