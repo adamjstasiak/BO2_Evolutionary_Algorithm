@@ -651,7 +651,7 @@ class FunctionValueGraph(tk.Frame):
         for i in range(len(cross_labels)):
             ax3.text(i,crossover_delta[i],round(crossover_delta[i],2))
         ax3.set_title("Crossover child mean delta")
-        ax3.set(ylim=(0,max(crossover_value)+max(crossover_value)/10))
+        ax3.set(ylim=(0,max(crossover_delta)+max(crossover_delta)/10))
         ax3.set_ylabel('Delta')
         ax4.bar(mut_labels,mutation_best)
         for i in range(len(mut_labels)):
