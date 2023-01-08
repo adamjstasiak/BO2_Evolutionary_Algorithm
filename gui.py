@@ -160,6 +160,8 @@ class Parameters(tk.Frame):
         # Mutation
         mutation_str = ttk.Label(crossover_mutation_frame, text='Mutation')
         mutation_str.grid(row=0, column=0, padx=5, pady=3)
+
+        self.crossover_percentage = tk.IntVar()
         self.mutation_percentage = tk.IntVar()
         self.mutation_percentage.trace("w", lambda name, index,
                                        mode, sv=self.mutation_percentage: self.callback_mut(sv))
@@ -173,7 +175,6 @@ class Parameters(tk.Frame):
         crossover_str = ttk.Label(crossover_mutation_frame, text='Crossover')
         crossover_str.grid(row=1, column=0, padx=5, pady=3)
 
-        self.crossover_percentage = tk.IntVar()
         self.crossover_percentage.trace("w", lambda name, index,
                                         mode, sv=self.crossover_percentage: self.callback_cross(sv))
         self.crossover_percentage.set(90)
@@ -300,7 +301,7 @@ class Parameters(tk.Frame):
         self.parcel_size = tk.IntVar()
         self.parcel_size.trace("w", lambda name, index,
                                mode, sv=self.parcel_size: self.callback(sv))
-        self.parcel_size.set(6)
+        self.parcel_size.set(len(files.import_flow_matrix('flow_matrix.xlsx')))
         par_entry = ttk.Entry(
             parcel_frame, textvariable=self.parcel_size, justify='right')
         par_entry.grid(row=0, column=1, padx=5, pady=3)
@@ -431,7 +432,7 @@ class Parameters(tk.Frame):
         return [sv._name, sv.get()]
 
     def callback_parcel(self, sv):
-        self.parcel_size.set(6)
+        self.parcel_size.set(len(files.import_flow_matrix('flow_matrix.xlsx')))
         return [sv._name, sv.get()]
 
     def start_algorithm(self):
@@ -577,6 +578,8 @@ class FunctionFlowGraph(tk.Frame):
         ax3.set_title("Amount by mutation type")
         ax3.set_ylabel("Amount")
         canvas.draw()
+
+        
 class FunctionValueGraph(tk.Frame):
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
