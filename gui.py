@@ -284,7 +284,7 @@ class Parameters(tk.Frame):
 
         # Canvas
         self.canv = tk.Canvas(main_frame, width=745, height=520,
-                              background='pink', borderwidth=10)
+                              background='lightblue', borderwidth=10)
         self.canv.grid(row=0, column=3, padx=5,
                        pady=5, rowspan=2, sticky=('N', 'W'))
         self.canv.bind("<ButtonPress-1>", self.paint_parcels)
